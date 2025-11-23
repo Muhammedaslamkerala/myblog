@@ -1,0 +1,13 @@
+{{ site_name|default:"MyBlog" }} — You Have a New Follower!
+
+Great News, {{ user.username }}!
+
+{{ follower.username }} is now following your blog on {{ site_name|default:"MyBlog" }}.
+
+View {{ follower.username }}'s Profile:
+{{ follower.profile_link }}
+
+Keep sharing great content to grow your following!
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

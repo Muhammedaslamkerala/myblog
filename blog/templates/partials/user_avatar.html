@@ -1,0 +1,177 @@
+{% comment %}
+Simple User Avatar Partial Template (No Profile Model Required)
+Usage: {% include 'partials/simple_user_avatar.html' with user=user size='md' %}
+Sizes: xs, sm, md, lg, xl
+{% endcomment %}
+
+<div class="user-avatar user-avatar-{{ size|default:'md' }}">
+    <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center"
+         data-user-id="{{ user.id }}"
+         title="{{ user.get_full_name|default:user.username }}">
+        <span class="avatar-initials">
+            {% if user.first_name and user.last_name %}
+                {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+            {% elif user.first_name %}
+                {{ user.first_name.0|upper }}{% if user.first_name|length > 1 %}{{ user.first_name.1|upper }}{% else %}{{ user.first_name.0|upper }}{% endif %}
+            {% elif user.last_name %}
+                {{ user.last_name.0|upper }}{% if user.last_name|length > 1 %}{{ user.last_name.1|upper }}{% else %}{{ user.last_name.0|upper }}{% endif %}
+            {% else %}
+                {{ user.username.0|upper }}{% if user.username|length > 1 %}{{ user.username.1|upper }}{% else %}{{ user.username.0|upper }}{% endif %}
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+<style>
+/* Avatar Sizes */
+.user-avatar-xs {
+    width: 24px;
+    height: 24px;
+}
+
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+}
+
+.user-avatar-md {
+    width: 40px;
+    height: 40px;
+}
+
+.user-avatar-lg {
+    width: 56px;
+    height: 56px;
+}
+
+.user-avatar-xl {
+    width: 80px;
+    height: 80px;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.avatar-placeholder:hover {
+    transform: scale(1.05);
+}
+
+/* Generate different colors based on user ID */
+.avatar-placeholder[data-user-id] {
+    background: var(--avatar-bg);
+}
+
+.user-avatar-xs .avatar-initials {
+    font-size: 10px;
+}
+
+.user-avatar-sm .avatar-initials {
+    font-size: 12px;
+}
+
+.user-avatar-md .avatar-initials {
+    font-size: 14px;
+}
+
+.user-avatar-lg .avatar-initials {
+    font-size: 18px;
+}
+
+.user-avatar-xl .avatar-initials {
+    font-size: 24px;
+}
+
+/* Different color variations for avatars */
+.avatar-placeholder[data-user-id="1"], 
+.avatar-placeholder[data-user-id$="1"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.avatar-placeholder[data-user-id="2"], 
+.avatar-placeholder[data-user-id$="2"] {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.avatar-placeholder[data-user-id="3"], 
+.avatar-placeholder[data-user-id$="3"] {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.avatar-placeholder[data-user-id="4"], 
+.avatar-placeholder[data-user-id$="4"] {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.avatar-placeholder[data-user-id="5"], 
+.avatar-placeholder[data-user-id$="5"] {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.avatar-placeholder[data-user-id="6"], 
+.avatar-placeholder[data-user-id$="6"] {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.avatar-placeholder[data-user-id="7"], 
+.avatar-placeholder[data-user-id$="7"] {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.avatar-placeholder[data-user-id="8"], 
+.avatar-placeholder[data-user-id$="8"] {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+.avatar-placeholder[data-user-id="9"], 
+.avatar-placeholder[data-user-id$="9"] {
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+}
+
+.avatar-placeholder[data-user-id="0"], 
+.avatar-placeholder[data-user-id$="0"] {
+    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+}
+</style>
+
+<script>
+// Optional: Add more dynamic color generation
+document.addEventListener('DOMContentLoaded', function() {
+    const avatars = document.querySelectorAll('.avatar-placeholder[data-user-id]');
+    
+    avatars.forEach(avatar => {
+        const userId = avatar.dataset.userId;
+        if (userId && !avatar.style.background) {
+            // Generate color based on user ID hash
+            const colors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+                'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+                'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+                'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
+            ];
+            
+            const colorIndex = parseInt(userId) % colors.length;
+            avatar.style.background = colors[colorIndex];
+        }
+    });
+});
+</script>

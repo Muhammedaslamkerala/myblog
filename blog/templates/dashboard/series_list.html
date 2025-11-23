@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Series - Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+:root { --primary: #667eea; --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+body { background: #f8f9fa; }
+.dashboard-header { background: white; padding: 2rem 0; border-bottom: 1px solid #e5e7eb; margin-top: 70px; }
+.page-title { font-size: 2rem; font-weight: 800; color: #1f2937; display: flex; align-items: center; gap: 1rem; margin: 0; }
+.page-title i { color: var(--primary); }
+.series-card {
+    background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e5e7eb; margin-bottom: 1.5rem; display: flex; align-items: center;
+    padding: 1.5rem; gap: 1.5rem; transition: all 0.3s ease;
+}
+.series-card:hover { border-color: var(--primary); box-shadow: 0 8px 30px rgba(102,126,234,0.15); }
+.series-icon { width: 60px; height: 60px; border-radius: 16px; background: var(--gradient-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
+.series-info { flex-grow: 1; }
+.series-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+.series-title a { color: #1f2937; text-decoration: none; }
+.series-title a:hover { color: var(--primary); }
+.series-meta { font-size: 0.9rem; color: #6b7280; display: flex; gap: 1rem; }
+.btn-action { padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="page-title"><i class="bi bi-collection-fill"></i> My Series</h1>
+            <a href="{% url 'blog:my_series_create' %}" style="background: var(--gradient-primary); padding: 0.75rem 1.5rem; border-radius: 12px; color: white; text-decoration: none; font-weight: 600;">
+                <i class="bi bi-plus-circle me-2"></i>Create New Series
+            </a>
+        </div>
+    </div>
+</header>
+
+<main style="padding: 3rem 0;">
+    <div class="container">
+        {% if series_list %}
+            {% for series in series_list %}
+            <div class="series-card">
+                <div class="series-icon"><i class="bi bi-collection"></i></div>
+                <div class="series-info">
+                    <h3 class="series-title"><a href="{{ series.get_absolute_url }}">{{ series.title }}</a></h3>
+                    <div class="series-meta">
+                        <span><i class="bi bi-file-earmark-text"></i> {{ series.post_count }} Posts</span>
+                        <span><i class="bi bi-clock"></i> {{ series.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="{% url 'blog:series_manage' series.slug %}" class="btn btn-outline-primary btn-action">Manage</a>
+                    <a href="{% url 'blog:my_series_edit' series.slug %}" class="btn btn-outline-secondary btn-action">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty state -->
+            <div style="background: white; text-align: center; padding: 4rem 2rem; border-radius: 20px;">
+                <i class="bi bi-collection" style="font-size: 4rem; color: #d1d5db;"></i>
+                <h2 style="margin-top: 1.5rem; font-weight: 700;">No Series Yet</h2>
+                <p style="color: #6b7280; margin: 1rem 0 2rem;">Create your first series to organize your posts.</p>
+                <a href="{% url 'blog:my_series_create' %}" style="background: var(--gradient-primary); padding: 0.875rem 2rem; border-radius: 12px; color: white; text-decoration: none; font-weight: 600; display: inline-block;">
+                    <i class="bi bi-plus-circle me-2"></i>Create Your First Series
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

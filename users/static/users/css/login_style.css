@@ -1,0 +1,46 @@
+body {
+    font-family: 'Times New Roman', serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.login-container {
+    background-color: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 350px;
+}
+.login-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+.form-control-checkbox {
+    margin-right: 10px;
+    transform: scale(1.5); 
+}
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: #555;
+}

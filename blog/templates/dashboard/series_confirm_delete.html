@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Series: {{ series.title }} - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #667eea;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --danger: #ef4444;
+    --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+body { background: #f8f9fa; }
+
+.dashboard-header {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-top: 70px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+}
+
+.page-title i { color: var(--danger); }
+
+.breadcrumb-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    font-size: 14px;
+}
+
+.breadcrumb-item {
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.breadcrumb-item:hover { color: var(--primary); }
+
+.dashboard-main { padding: 3rem 0; }
+
+.confirm-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.warning-card {
+    background: #fef2f2;
+    border: 2px solid #fca5a5;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15);
+}
+
+.warning-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.warning-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--danger-gradient);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.warning-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #991b1b;
+    margin: 0;
+}
+
+.warning-message {
+    color: #7f1d1d;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.warning-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+}
+
+.warning-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    color: #7f1d1d;
+}
+
+.warning-list li i {
+    color: var(--danger);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.series-info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.info-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.info-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.affected-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.affected-post-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.post-number {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.post-title {
+    flex: 1;
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.95rem;
+}
+
+.post-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.post-status.published {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.post-status.draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel {
+    background: white;
+    color: #4b5563;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    background: var(--danger-gradient);
+    color: white;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+@media (max-width: 768px) {
+    .confirm-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="container">
+        <nav class="breadcrumb-modern">
+            <a href="{% url 'blog:dashboard' %}" class="breadcrumb-item">Dashboard</a>
+            <span class="breadcrumb-separator" style="color: #9ca3af;">›</span>
+            <a href="{% url 'blog:my_series_list' %}" class="breadcrumb-item">My Series</a>
+            <span class="breadcrumb-separator" style="color: #9ca3af;">›</span>
+            <span class="breadcrumb-item" style="color: #1f2937;">Delete</span>
+        </nav>
+        <h1 class="page-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Delete Series
+        </h1>
+    </div>
+</header>
+
+<main class="dashboard-main">
+    <div class="container">
+        <div class="confirm-container">
+            <!-- Warning Card -->
+            <div class="warning-card">
+                <div class="warning-header">
+                    <div class="warning-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h2 class="warning-title">Are you absolutely sure?</h2>
+                </div>
+                <p class="warning-message">
+                    This action <strong>cannot be undone</strong>. Deleting this series will:
+                </p>
+                <ul class="warning-list">
+                    <li>
+                        <i class="bi bi-x-circle-fill"></i>
+                        <span>Permanently delete the series "<strong>{{ series.title }}</strong>"</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-link-45deg"></i>
+                        <span>Unlink all posts from this series (posts will remain published)</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span>This action cannot be reversed or recovered</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Series Information -->
+            <div class="series-info-card">
+                <div class="info-section">
+                    <div class="info-label">Series Title</div>
+                    <div class="info-value">{{ series.title }}</div>
+                </div>
+
+                {% if series.description %}
+                <div class="info-section">
+                    <div class="info-label">Description</div>
+                    <div class="info-value" style="font-weight: 400; color: #6b7280;">
+                        {{ series.description|truncatechars:200 }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="info-section">
+                    <div class="info-label">Created On</div>
+                    <div class="info-value">{{ series.created_at|date:"F d, Y" }}</div>
+                </div>
+
+                {% if affected_posts %}
+                <div class="info-section">
+                    <div class="info-label">
+                        Posts in This Series ({{ post_count }})
+                    </div>
+                    <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1rem;">
+                        These posts will be unlinked but will remain published on your blog:
+                    </p>
+                    <div class="affected-posts">
+                        {% for post in affected_posts %}
+                        <div class="affected-post-item">
+                            <div class="post-number">{{ forloop.counter }}</div>
+                            <div class="post-title">{{ post.title }}</div>
+                            <span class="post-status {% if post.status == 'published' %}published{% else %}draft{% endif %}">
+                                {{ post.get_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="info-section">
+                    <div class="info-label">Posts in Series</div>
+                    <div class="info-value" style="color: #6b7280; font-weight: 400;">
+                        No posts in this series
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Confirmation Form -->
+            <form method="post" style="margin-bottom: 2rem;">
+                {% csrf_token %}
+                <div class="confirm-actions">
+                    <a href="{% url 'blog:my_series_list' %}" class="btn btn-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-delete">
+                        <i class="bi bi-trash3-fill"></i>
+                        Yes, Delete Series
+                    </button>
+                </div>
+            </form>
+
+            <!-- Additional Info -->
+            <div style="text-align: center; color: #6b7280; font-size: 0.85rem;">
+                <i class="bi bi-info-circle"></i>
+                Deleting a series only removes the collection. Your posts will remain intact.
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

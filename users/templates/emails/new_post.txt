@@ -1,0 +1,17 @@
+{{ site_name|default:"MyBlog" }} — New Post Alert!
+
+Hey {{ user.username }},
+
+{{ post.author_name }} just published a new post you might be interested in:
+
+Title: "{{ post.title }}"
+Summary: {{ post.excerpt|default:"Click the link below to read the full post." }}
+
+Read Full Post:
+{{ post.url }}
+
+To stop receiving these alerts, you can unfollow {{ post.author_name }} here:
+{{ unfollow_link }}
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

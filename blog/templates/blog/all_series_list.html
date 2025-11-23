@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discover Series - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #667eea;
+    --primary-dark: #764ba2;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+body { background: linear-gradient(135deg, #f9fafb 0%, white 100%); }
+
+/* Hero Header */
+.hero-header-posts {
+    position: relative;
+    background: var(--gradient-primary);
+    padding: 120px 0 80px;
+    color: white;
+    overflow: hidden;
+    margin-top: -70px;
+}
+
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.breadcrumb-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.breadcrumb-item {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.breadcrumb-item:hover { color: white; }
+.breadcrumb-item.active { color: white; font-weight: 600; }
+
+.title-section {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.page-title-modern {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.page-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 40px;
+}
+
+/* Filter Section */
+.filter-section {
+    background: white;
+    padding: 24px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 70px;
+    z-index: 90;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.filter-dropdown {
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    background: #f9fafb;
+    color: #374151;
+    min-width: 200px;
+    cursor: pointer;
+}
+
+.filter-dropdown:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-filter {
+    padding: 14px 24px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Series Grid */
+.series-grid-section {
+    padding: 60px 0;
+}
+
+.series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 32px;
+}
+
+.series-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+}
+
+.series-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    border-color: var(--primary);
+}
+
+.series-card-header {
+    background: var(--gradient-primary);
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+}
+
+.series-card-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+}
+
+.series-card-icon {
+    font-size: 56px;
+    color: white;
+    opacity: 0.9;
+    position: relative;
+    z-index: 2;
+}
+
+.series-card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.series-card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1f2937;
+    transition: color 0.3s ease;
+    line-height: 1.3;
+}
+
+.series-card:hover .series-card-title {
+    color: var(--primary);
+}
+
+.series-card-description {
+    color: #6b7280;
+    line-height: 1.6;
+    flex-grow: 1;
+    margin-bottom: 24px;
+    font-size: 15px;
+}
+
+.series-card-footer {
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.author-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.series-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 6px 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 32px;
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
+}
+
+.empty-illustration {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: #9ca3af;
+    font-size: 32px;
+}
+
+.empty-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.empty-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+    }
+    
+    .search-wrapper,
+    .filter-dropdown,
+    .btn-filter {
+        width: 100%;
+    }
+    
+    .series-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Header -->
+<header class="hero-header-posts">
+    <div class="hero-gradient"></div>
+    <div class="container">
+        <div class="header-content">
+            <nav class="breadcrumb-modern">
+                <a href="{% url 'blog:home' %}" class="breadcrumb-item">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item active">Series</span>
+            </nav>
+            <div class="title-section">
+                <h1 class="page-title-modern">Discover Series</h1>
+                <p class="page-subtitle">
+                    Explore curated collections of posts designed to guide you through topics in a structured, easy-to-follow format.
+                </p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Filter Section -->
+<section class="filter-section">
+    <div class="container">
+        <form method="get" action="">
+            <div class="filter-controls">
+                <div class="search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" 
+                           name="q" 
+                           class="search-input" 
+                           placeholder="Search for a series by title..."
+                           value="{{ request.GET.q }}">
+                </div>
+                <select name="author" class="filter-dropdown">
+                    <option value="">All Authors</option>
+                    {% for author in authors %}
+                    <option value="{{ author.author__username }}" 
+                            {% if request.GET.author == author.author__username %}selected{% endif %}>
+                        {{ author.author__first_name }} {{ author.author__last_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-filter">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Series Grid -->
+<main class="series-grid-section">
+    <div class="container">
+        {% if series_list %}
+        <div class="series-grid">
+            {% for series in series_list %}
+            <a href="{% url 'blog:series_detail' series.slug %}" class="series-card">
+                <div class="series-card-header">
+                    <i class="bi bi-collection-fill series-card-icon"></i>
+                </div>
+                <div class="series-card-content">
+                    <h3 class="series-card-title">{{ series.title }}</h3>
+                    <p class="series-card-description">
+                        {{ series.description|truncatechars:150|default:"Explore this collection of related posts." }}
+                    </p>
+                </div>
+                <div class="series-card-footer">
+                    <div class="author-info">
+                        <div class="author-avatar">
+                            {{ series.author.first_name.0|upper }}{{ series.author.last_name.0|upper|default:series.author.username.0|upper }}
+                        </div>
+                        <div class="author-name">
+                            {{ series.author.get_full_name|default:series.author.username }}
+                        </div>
+                    </div>
+                    <div class="series-stats">
+                        <i class="bi bi-file-earmark-text"></i> {{ series.post_count }} post{{ series.post_count|pluralize }}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="series-grid">
+            <div class="empty-state">
+                <div class="empty-illustration">
+                    <i class="bi bi-collection"></i>
+                </div>
+                <h3 class="empty-title">
+                    {% if request.GET.q %}
+                        No Series Found
+                    {% else %}
+                        No Series Yet
+                    {% endif %}
+                </h3>
+                <p class="empty-description">
+                    {% if request.GET.q %}
+                        We couldn't find any series matching "{{ request.GET.q }}". Try different keywords or browse all series.
+                    {% else %}
+                        No series have been created yet. Check back soon for curated content collections!
+                    {% endif %}
+                </p>
+                {% if request.GET.q %}
+                <a href="{% url 'blog:all_series_list' %}" class="btn-filter">
+                    <i class="bi bi-arrow-left"></i> View All Series
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav class="pagination-section" style="margin-top: 60px; display: flex; justify-content: center;">
+            <div class="pagination-controls" style="display: flex; gap: 8px;">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}" 
+                   class="page-btn" style="padding: 10px 16px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; color: #4b5563; font-weight: 600; text-decoration: none;">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}" 
+                   class="page-btn" style="padding: 10px 16px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; color: #4b5563; font-weight: 600; text-decoration: none;">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                <span class="page-btn" style="padding: 10px 16px; background: var(--gradient-primary); border: none; border-radius: 10px; color: white; font-weight: 600;">
+                    {{ page_obj.number }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}" 
+                   class="page-btn" style="padding: 10px 16px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; color: #4b5563; font-weight: 600; text-decoration: none;">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}" 
+                   class="page-btn" style="padding: 10px 16px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; color: #4b5563; font-weight: 600; text-decoration: none;">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

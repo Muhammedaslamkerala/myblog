@@ -1,0 +1,995 @@
+
+/* ============================================
+   MODERN POST DETAIL - Complete CSS
+   Save as: static/css/post-detail.css
+   ============================================ */
+
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #ec4899;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --dark: #0f172a;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+.toast-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: white;
+    padding: 1.25rem 1.75rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl);
+    z-index: 9999;
+    transform: translateX(400px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 400px;
+    border: 1px solid var(--gray-200);
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-notification.toast-success {
+    border-left: 4px solid var(--success);
+}
+
+.toast-notification.toast-error {
+    border-left: 4px solid var(--danger);
+}
+
+.toast-notification.toast-info {
+    border-left: 4px solid var(--info);
+}
+
+.toast-notification.toast-warning {
+    border-left: 4px solid var(--warning);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.toast-content i {
+    font-size: 1.5rem;
+}
+
+.toast-success .toast-content i {
+    color: var(--success);
+}
+
+.toast-error .toast-content i {
+    color: var(--danger);
+}
+
+.toast-info .toast-content i {
+    color: var(--info);
+}
+
+.toast-warning .toast-content i {
+    color: var(--warning);
+}
+
+/* ============================================
+   REPLY FORM ENHANCEMENTS
+   ============================================ */
+.reply-form {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   EDIT FORM
+   ============================================ */
+.edit-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+.edit-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.edit-form textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.edit-form .reply-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   COMMENT HOVER EFFECTS
+   ============================================ */
+.modern-comment {
+    position: relative;
+}
+
+.modern-comment::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.modern-comment:hover::before {
+    opacity: 0.05;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   FORM ERRORS
+   ============================================ */
+.form-errors {
+    margin-bottom: 1rem;
+}
+
+.form-errors .error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--danger);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideDown 0.3s ease;
+}
+
+.form-errors .error::before {
+    content: '⚠';
+    font-size: 1.25rem;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button,
+a,
+.modern-category,
+.modern-tag {
+    transition-duration: 0.2s;
+}
+
+.modern-comment,
+.reply-modern {
+    transition-duration: 0.3s;
+}
+
+/* ============================================
+   SCROLL BEHAVIOR
+   ============================================ */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+::selection {
+    background: var(--primary);
+    color: white;
+}
+
+::-moz-selection {
+    background: var(--primary);
+    color: white;
+}
+
+/* ============================================
+   FOCUS VISIBLE
+   ============================================ */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   BUTTON HOVER EFFECTS
+   ============================================ */
+.action-btn,
+.modern-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before,
+.modern-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.action-btn:hover::before,
+.modern-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* ============================================
+   SOCIAL SHARE HOVER EFFECTS
+   ============================================ */
+.modern-sidebar-card a[href*="twitter"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.4);
+}
+
+.modern-sidebar-card a[href*="facebook"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+}
+
+.modern-sidebar-card a[href*="linkedin"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.4);
+}
+
+.modern-sidebar-card a[href*="whatsapp"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+/* ============================================
+   COMMENT DELETE ANIMATION
+   ============================================ */
+.comment-deleting {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+/* ============================================
+   NO COMMENTS STATE
+   ============================================ */
+.no-comments-animation {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ============================================
+   ARTICLE CONTENT ENHANCEMENTS
+   ============================================ */
+.article-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.article-body th,
+.article-body td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.article-body th {
+    background: var(--gray-50);
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.article-body tr:hover {
+    background: var(--gray-50);
+}
+
+.article-body ul,
+.article-body ol {
+    margin: 1.5rem 0;
+    padding-left: 2rem;
+}
+
+.article-body li {
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+}
+
+.article-body li::marker {
+    color: var(--primary);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 992px) {
+    .modern-sidebar-card {
+        position: static !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .post-hero {
+        height: 50vh;
+        min-height: 400px;
+        margin-bottom: -50px;
+    }
+    
+    .post-hero-title {
+        font-size: 2rem;
+    }
+    
+    .post-hero-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .hero-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .post-content-card,
+    .comments-section {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .article-body {
+        font-size: 1rem;
+    }
+    
+    .article-body h2 {
+        font-size: 1.5rem;
+    }
+    
+    .comment-replies-modern {
+        margin-left: 1rem;
+        padding-left: 1rem;
+    }
+    
+    .post-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .toast-notification {
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .comment-actions-modern {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-hero {
+        min-height: 350px;
+    }
+    
+    .post-content-card,
+    .comments-section,
+    .modern-sidebar-card {
+        padding: 1rem;
+    }
+    
+    .modern-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 0.875rem;
+    }
+    
+    .hero-stat {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .sidebar-title {
+        font-size: 1rem;
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (Optional)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    /* Add dark mode styles here if needed */
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .post-hero,
+    .post-actions,
+    .comments-section,
+    aside,
+    .toast-notification,
+    .comment-actions-modern {
+        display: none !important;
+    }
+    
+    .post-content-card {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .article-body {
+        max-width: 100%;
+    }
+    
+    body {
+        background: white;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+.post-hero-image {
+    will-change: opacity;
+}
+
+.modern-comment,
+.reply-modern {
+    will-change: transform, opacity;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.text-center {
+    text-align: center;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+/* ============================================
+   ADDITIONAL INTERACTIVE ELEMENTS
+   ============================================ */
+
+/* Skeleton Loading for Comments */
+.skeleton {
+    background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+}
+
+/* ============================================
+   ENHANCED BUTTON STATES
+   ============================================ */
+.action-btn:active,
+.modern-btn:active,
+.comment-action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-btn:disabled,
+.modern-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   TOOLTIP STYLES (Optional Enhancement)
+   ============================================ */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 0.5rem 0.75rem;
+    background: var(--dark);
+    color: white;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 1000;
+}
+
+[data-tooltip]::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--dark);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+[data-tooltip]:hover::before {
+    transform: translateX(-50%) translateY(-4px);
+}
+
+/* ============================================
+   GRADIENT TEXT EFFECTS
+   ============================================ */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   CARD ANIMATIONS
+   ============================================ */
+.modern-sidebar-card {
+    animation: fadeInUp 0.5s ease;
+}
+
+.modern-sidebar-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.modern-sidebar-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.modern-sidebar-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.modern-sidebar-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   IMAGE LAZY LOADING EFFECT
+   ============================================ */
+.article-body img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.article-body img.loaded {
+    opacity: 1;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) var(--gray-100);
+}
+
+/* ============================================
+   CATEGORY BADGE VARIANTS
+   ============================================ */
+.modern-category.tech {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.modern-category.design {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.modern-category.business {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.modern-category.lifestyle {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+/* ============================================
+   FLOATING ACTION BUTTON (FAB)
+   ============================================ */
+.fab-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-xl);
+}
+
+.fab.scroll-to-top {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fab.scroll-to-top.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================
+   PROGRESS BAR (Reading Progress)
+   ============================================ */
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    z-index: 9999;
+    transition: width 0.1s ease;
+}
+
+/* ============================================
+   SHARE POPUP ANIMATION
+   ============================================ */
+.share-popup {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 2rem;
+    border-radius: 24px 24px 0 0;
+    box-shadow: var(--shadow-2xl);
+    z-index: 1000;
+    transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.share-popup.active {
+    bottom: 0;
+}
+
+.share-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.share-popup-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================
+   COMMENT REACTIONS (Future Enhancement)
+   ============================================ */
+.comment-reactions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.reaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--gray-100);
+    border: none;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reaction-btn:hover {
+    background: var(--gray-200);
+    transform: scale(1.05);
+}
+
+.reaction-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* ============================================
+   QUOTE HIGHLIGHT
+   ============================================ */
+.article-body blockquote.highlight {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+    border-left-color: var(--secondary);
+    position: relative;
+}
+
+.article-body blockquote.highlight::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-size: 4rem;
+    color: var(--primary);
+    opacity: 0.2;
+    line-height: 1;
+}
+
+/* ============================================
+   CODE BLOCK ENHANCEMENTS
+   ============================================ */
+.article-body pre {
+    position: relative;
+}
+
+.article-body pre::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   FINAL TOUCHES
+   ============================================ */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent layout shift */
+.article-body img,
+.post-hero-image {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+/* Focus styles for better accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   END OF STYLES
+   ============================================ */

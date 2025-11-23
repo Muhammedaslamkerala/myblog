@@ -1,0 +1,16 @@
+{{ site_name|default:"MyBlog" }} — Verify Your New Email Address
+
+Hello {{ user.username }},
+
+You recently requested to change your email address to: {{ new_email }}
+
+Your verification code is:
+
+{{ otp }}
+
+This code will expire in 15 minutes.
+
+If you didn't request this change, please ignore this email and secure your account immediately.
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

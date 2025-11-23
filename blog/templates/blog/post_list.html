@@ -1,0 +1,524 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load math_filters %}
+
+{% block title %}
+    {% if current_category %}
+        {{ current_category.name }} Posts - MyBlog
+    {% elif current_tag %}
+        {{ current_tag.name }} Posts - MyBlog
+    {% elif search_query %}
+        Search Results for "{{ search_query }}" - MyBlog
+    {% elif is_for_you_page %}
+        For You - MyBlog
+    {% else %}
+        Latest Posts - MyBlog
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* --- All CSS --- */
+:root {
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --secondary: #764ba2;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+}
+body{
+    background: linear-gradient(135deg, #f9fafb 0%, white 100%);
+}
+.hero-header-posts { position: relative; background: var(--gradient-primary); padding: 120px 0 80px; color: white; overflow: hidden; margin-top: -70px; }
+.hero-gradient { position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%); }
+.header-content { position: relative; z-index: 2; }
+.breadcrumb-modern { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 14px; }
+.breadcrumb-item { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: all 0.3s ease; }
+.breadcrumb-item:hover { color: white; }
+.breadcrumb-item.active { color: white; font-weight: 600; }
+.title-section { text-align: center; max-width: 800px; margin: 0 auto; }
+.page-title-modern { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+.page-subtitle { font-size: 18px; color: rgba(255, 255, 255, 0.9); margin-bottom: 40px; }
+.stats-bar { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.stat-item-header { text-align: center; }
+.stat-value { display: block; font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+.stat-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-section { background: white; padding: 24px 0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 70px; z-index: 90; }
+.filter-card { background: white; border-radius: 20px; padding: 24px; border: 1px solid #e5e7eb; }
+.filter-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-container { flex: 1; max-width: 500px; }
+.search-form-modern { position: relative; }
+.search-wrapper { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 16px; color: #9ca3af; z-index: 2; }
+.search-input-modern { width: 100%; padding: 14px 16px 14px 48px; border: 2px solid #e5e7eb; border-radius: 16px; font-size: 15px; transition: all 0.3s ease; background: #f9fafb; }
+.search-input-modern:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+.clear-search { position: absolute; right: 12px; background: #d1d5db; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; color: white; }
+.clear-search:hover { background: #9ca3af; }
+.view-controls { display: flex; align-items: center; gap: 16px; }
+.view-options { display: flex; background: #f3f4f6; border-radius: 12px; padding: 4px; }
+.view-btn { background: transparent; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; color: #6b7280; }
+.view-btn:hover { color: #374151; }
+.view-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+.sort-dropdown { background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+.sort-dropdown:focus { outline: none; border-color: var(--primary); }
+.filter-pills { display: flex; gap: 12px; flex-wrap: wrap; overflow-x: auto; padding-bottom: 8px; }
+.filter-pill { display: inline-flex; align-items: center; gap: 8px; background: white; border: 2px solid #e5e7eb; border-radius: 50px; padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; color: #6b7280; transition: all 0.3s ease; white-space: nowrap; }
+.filter-pill:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+.filter-pill.active { background: var(--gradient-primary); border-color: transparent; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+.pill-badge { background: rgba(0, 0, 0, 0.1); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.filter-pill.active .pill-badge { background: rgba(255, 255, 255, 0.2); }
+.active-filters { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid #e5e7eb; margin-top: 16px; }
+.active-label { font-size: 14px; font-weight: 600; color: #4b5563; }
+.active-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.active-tag { display: flex; align-items: center; gap: 8px; background: var(--gradient-primary); color: white; padding: 6px 12px; border-radius: 12px; font-size: 13px; font-weight: 500; }
+.remove-tag { background: rgba(255, 255, 255, 0.2); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
+.remove-tag:hover { background: rgba(255, 255, 255, 0.3); }
+.posts-main { padding: 60px 0; }
+.posts-grid { display: grid; gap: 32px; }
+.posts-grid.grid-view { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+.posts-grid.list-view { grid-template-columns: 1fr; gap: 48px; }
+.posts-grid.compact-view { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.post-card { background: white; border-radius: 16px; display: flex; flex-direction: column; height: 100%; overflow: visible; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; transition: all 0.3s ease; position: relative; }
+.post-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+.post-card.is-active { z-index: 10; }
+.card-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
+.card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.post-card:hover .card-image { transform: scale(1.05); }
+.card-media-content { position: absolute; inset: 0; padding: 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.card-category-badge { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(0,0,0,0.05); transition: background 0.3s ease; }
+.card-category-badge:hover { background: white; }
+.card-media-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+.post-card:hover .card-media-overlay { opacity: 1; }
+.read-article-link { color: white; font-size: 16px; font-weight: 600; text-decoration: none; padding: 12px 24px; border: 2px solid white; border-radius: 50px; transform: translateY(10px); transition: transform 0.3s ease, background 0.3s ease; }
+.post-card:hover .read-article-link { transform: translateY(0); }
+.read-article-link:hover { background: white; color: #1a202c; }
+.card-content { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+.series-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #9d5b00; background-color: #fffbeb; padding: 4px 10px; border-radius: 8px; margin-bottom: 12px; text-decoration: none; transition: all 0.3s ease; align-self: flex-start; }
+.series-indicator:hover { background-color: #fef3c7; color: #78350f; }
+.card-title-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+.card-title { font-size: 22px; font-weight: 700; line-height: 1.3; margin: 0; color: #1a202c; flex-grow: 1;}
+.card-title a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+.card-title a:hover { color: var(--primary); }
+.card-excerpt { color: #4a5568; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+.card-meta-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: auto; }
+.author-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.author-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.author-avatar-initials { width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+.author-name-stack { display: flex; flex-direction: column; }
+.author-name { font-size: 14px; font-weight: 600; color: #4a5568; transition: color 0.3s ease;}
+.author-info:hover .author-name { color: var(--primary); }
+.post-date { font-size: 12px; color: #718096; }
+.card-stats { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #718096; }
+.stat-item { display: flex; align-items: center; gap: 5px; }
+.stat-item i { font-size: 14px; }
+.stat-count { font-weight: 600; }
+.actions-container { position: relative; }
+.card-actions-trigger { width: 36px; height: 36px; border-radius: 10px; background: #f3f4f6; border: none; display: flex; align-items: center; justify-content: center; color: #718096; font-size: 16px; transition: all 0.3s ease; flex-shrink: 0; cursor: pointer; }
+.card-actions-trigger:hover { background: #e5e7eb; color: #1a202c; }
+.actions-card, .share-card { position: absolute; top: 0; left: calc(100% + 10px); width: 220px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); padding: 8px; z-index: 100; opacity: 0; visibility: hidden; transform: translateX(-10px) scale(0.95); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease; }
+.actions-card.show, .share-card.show { opacity: 1; visibility: visible; transform: translateX(0) scale(1); }
+.share-card { left: calc(100% + 8px); }
+.action-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 10px; margin: 2px 0; font-weight: 500; color: #4a5568; text-decoration: none; cursor: pointer; transition: all 0.2s ease; }
+.action-item:hover { background: rgba(102, 126, 234, 0.1); color: var(--primary); }
+.action-item.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+.action-divider { height: 1px; background: #e5e7eb; margin: 8px 0; }
+.share-trigger::after { display: inline-block; content: ""; border-top: 0.3em solid transparent; border-right: 0; border-bottom: 0.3em solid transparent; border-left: 0.3em solid; vertical-align: middle; margin-left: auto; }
+.bookmark-action .icon-fill { display: none; }
+.bookmark-action.active .icon-fill { display: inline-block; }
+.bookmark-action.active .icon-outline { display: none; }
+.bookmark-action.active, .bookmark-action:hover { background: rgba(102, 126, 234, 0.1); color: var(--primary); }
+.posts-grid.list-view .post-card { flex-direction: row; align-items: stretch; }
+.posts-grid.list-view .card-media { width: 340px; aspect-ratio: 4 / 3; }
+.posts-grid.list-view .card-content { flex-basis: 0; }
+.posts-grid.compact-view .card-title { font-size: 18px; }
+.posts-grid.compact-view .card-excerpt { display: none; }
+.posts-grid.compact-view .card-meta-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+.posts-grid.compact-view .card-stats { width: 100%; justify-content: space-between; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 32px; background: white; border-radius: 24px; border: 1px solid #e5e7eb; }
+.empty-illustration { width: 80px; height: 80px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: #9ca3af; font-size: 32px; }
+.empty-title { font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
+.empty-description { color: #6b7280; line-height: 1.6; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.pagination-section { margin-top: 60px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; padding: 24px; background: white; border-radius: 20px; border: 1px solid #e5e7eb; }
+.pagination-info { color: #6b7280; font-size: 14px; }
+.pagination-controls { display: flex; align-items: center; gap: 8px; }
+.page-btn { background: white; border: 2px solid #e5e7eb; border-radius: 10px; color: #4b5563; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+.page-btn-nav { padding: 10px 16px; }
+.page-btn-number { width: 40px; height: 40px; justify-content: center; }
+.page-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+.page-btn.active { background: var(--gradient-primary); border-color: transparent; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+@media (max-width: 768px) {
+    .hero-header-posts { padding: 100px 0 60px; }
+    .filter-header { flex-direction: column; align-items: stretch; }
+    .search-container { max-width: none; }
+    .view-controls { justify-content: space-between; }
+    .posts-grid.grid-view, .posts-grid.list-view, .posts-grid.compact-view { grid-template-columns: 1fr; }
+    .posts-grid.list-view .post-card { flex-direction: column; }
+    .posts-grid.list-view .card-media { width: 100%; aspect-ratio: 16/9; }
+    .pagination-section { flex-direction: column; }
+    .actions-card, .share-card { left: auto; right: calc(100% + 10px); transform: translateX(10px) scale(0.95); }
+    .actions-card.show, .share-card.show { transform: translateX(0) scale(1); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="hero-header-posts">
+    <div class="hero-gradient"></div>
+    <div class="container">
+        <div class="header-content">
+            <nav class="breadcrumb-modern">
+                <a href="{% url 'blog:home' %}" class="breadcrumb-item"><i class="bi bi-house-door"></i> Home</a>
+                <span class="breadcrumb-separator">›</span>
+                {% if current_category %}<span class="breadcrumb-item active">{{ current_category.name }}</span>{% elif current_tag %}<span class="breadcrumb-item active">{{ current_tag.name }}</span>{% elif search_query %}<span class="breadcrumb-item active">Search</span>{% elif is_for_you_page %}<span class="breadcrumb-item active">For You</span>{% else %}<span class="breadcrumb-item active">All Posts</span>{% endif %}
+            </nav>
+            <div class="title-section">
+                <h1 class="page-title-modern">{% if current_category %}{{ current_category.name }}{% elif current_tag %}#{{ current_tag.name }}{% elif search_query %}Search Results{% elif is_for_you_page %}For You{% else %}Discover Articles{% endif %}</h1>
+                <p class="page-subtitle">{% if current_category and current_category.description %}{{ current_category.description }}{% elif search_query %}{{ page_obj.paginator.count }} articles found for "{{ search_query }}"{% elif is_for_you_page %}Posts from authors you follow{% else %}Explore our latest insights and stories{% endif %}</p>
+                <div class="stats-bar">
+                    <div class="stat-item-header"><span class="stat-value">{{ page_obj.paginator.count }}</span><span class="stat-label">Articles</span></div>
+                    <div class="stat-divider" style="width: 1px; height: 40px; background: rgba(255, 255, 255, 0.3);"></div>
+                    <div class="stat-item-header"><span class="stat-value">{{ total_authors|default:"0" }}</span><span class="stat-label">Authors</span></div>
+                    <div class="stat-divider" style="width: 1px; height: 40px; background: rgba(255, 255, 255, 0.3);"></div>
+                    <div class="stat-item-header"><span class="stat-value">{{ categories.count }}</span><span class="stat-label">Categories</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="filter-section">
+    <div class="container">
+        <div class="filter-card">
+            <div class="filter-header">
+                <div class="search-container">
+                    <form method="get" action="{% url 'blog:search' %}" class="search-form-modern">
+                        <div class="search-wrapper">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" name="q" class="search-input-modern" placeholder="Search articles, authors, topics..." value="{{ search_query|default:'' }}">
+                            {% if search_query %}<button type="button" class="clear-search" onclick="clearSearch()"><i class="bi bi-x"></i></button>{% endif %}
+                        </div>
+                    </form>
+                </div>
+                <div class="view-controls">
+                    <div class="view-options">
+                        <button class="view-btn active" data-view="grid" title="Grid View"><i class="bi bi-grid-3x3-gap"></i></button>
+                        <button class="view-btn" data-view="list" title="List View"><i class="bi bi-list-ul"></i></button>
+                        <button class="view-btn" data-view="compact" title="Compact View"><i class="bi bi-grid"></i></button>
+                    </div>
+                    <select class="sort-dropdown" id="sortSelect" onchange="applySorting()">
+                        <option value="-published_date" {% if request.GET.sort == '-published_date' or not request.GET.sort %}selected{% endif %}>Latest First</option>
+                        <option value="published_date" {% if request.GET.sort == 'published_date' %}selected{% endif %}>Oldest First</option>
+                        <option value="-views_count" {% if request.GET.sort == '-views_count' %}selected{% endif %}>Most Popular</option>
+                        <option value="-likes_count" {% if request.GET.sort == '-likes_count' %}selected{% endif %}>Most Liked</option>  
+                    </select>
+                </div>
+            </div>
+            {% if not is_for_you_page %}
+            <div class="filter-pills">
+                <a href="{% url 'blog:post_list' %}" class="filter-pill {% if not current_category and not current_tag %}active{% endif %}">
+                    <i class="bi bi-globe"></i><span>All</span><span class="pill-badge">{{ total_posts|default:"0" }}</span>
+                </a>
+                {% for category in categories %}<a href="{% url 'blog:category' category.slug %}" class="filter-pill {% if current_category.id == category.id %}active{% endif %}">
+                    {% if category.icon %}<i class="bi bi-{{ category.icon }}"></i>{% endif %}<span>{{ category.name }}</span><span class="pill-badge">{{ category.post_count }}</span>
+                </a>{% endfor %}
+            </div>
+            {% endif %}
+            {% if current_category or current_tag or search_query %}
+            <div class="active-filters">
+                <span class="active-label">Active filters:</span>
+                <div class="active-tags">
+                    {% if current_category %}<span class="active-tag"><i class="bi bi-folder"></i>{{ current_category.name }}<a href="{% url 'blog:post_list' %}" class="remove-tag">×</a></span>{% endif %}
+                    {% if current_tag %}<span class="active-tag"><i class="bi bi-tag"></i>{{ current_tag.name }}<a href="{% url 'blog:post_list' %}" class="remove-tag">×</a></span>{% endif %}
+                    {% if search_query %}<span class="active-tag"><i class="bi bi-search"></i>"{{ search_query }}"<a href="{% url 'blog:post_list' %}" class="remove-tag">×</a></span>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<main class="posts-main">
+    <div class="container">
+        <div class="posts-grid grid-view" id="postsGrid">
+            {% for post in post_list %}
+            <article class="post-card">
+                <a href="{{ post.get_absolute_url }}" class="card-media">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="card-image" loading="lazy">
+                    {% else %}
+                        <div class="card-image" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+                    {% endif %}
+                    <div class="card-media-content">
+                        {% if post.categories.first %}
+                        <div class="card-category-badge" style="color: {{ post.categories.first.color|default:'var(--primary)' }};">
+                            {{ post.categories.first.name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-media-overlay">
+                        <span class="read-article-link">Read Article</span>
+                    </div>
+                </a>
+                <div class="card-content">
+                    {% if post.series %} 
+                    <a href="{{ post.series.get_absolute_url }}" class="series-indicator">
+                        <i class="bi bi-collection-fill"></i>
+                        <span>Part of: {{ post.series.title|truncatechars:25 }}</span>
+                    </a>
+                    {% endif %}
+                    <div class="card-title-header">
+                        <h2 class="card-title">
+                            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                        </h2>
+                        <div class="actions-container">
+                            <button class="card-actions-trigger" onclick="toggleActionsCard(event)" title="More options"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="actions-card">
+                                <!-- Author-specific options -->
+                                {% if user.is_authenticated and user == post.author %}
+                                <a class="action-item" href="{% url 'blog:post_edit' post.slug %}">
+                                    <i class="bi bi-pencil-fill"></i><span>Edit</span>
+                                </a>
+                                <a class="action-item delete" href="{% url 'blog:post_delete' post.slug %}">
+                                    <i class="bi bi-trash-fill"></i><span>Delete</span>
+                                </a>
+                                <div class="action-divider"></div>
+                                {% endif %}
+
+                                <!-- General options -->
+                                <a class="action-item bookmark-action {% if post.is_bookmarked %}active{% endif %}" href="javascript:void(0);" data-post-id="{{post.id}}">
+                                    <i class="bi bi-bookmark icon-outline"></i>
+                                    <i class="bi bi-bookmark-fill icon-fill"></i>
+                                    <span class="bookmark-text">{% if post.is_bookmarked %}Bookmarked{% else %}Bookmark{% endif %}</span>
+                                </a>
+                                {% if post.series %}
+                                <a class="action-item" href="{{ post.series.get_absolute_url }}">
+                                    <i class="bi bi-collection-fill"></i>
+                                    <span>View Series</span>
+                                </a>
+                                {% endif %}
+                                <div class="action-item share-trigger" onclick="toggleShareCard(event)">
+                                    <i class="bi bi-share-fill"></i><span>Share</span>
+                                </div>
+                                <div class="share-card">
+                                    <a class="action-item" href="#" onclick="copyUrl('{{ request.build_absolute_uri }}{{ post.get_absolute_url }}', event)"><i class="bi bi-clipboard"></i> Copy URL</a>
+                                    <div class="action-divider"></div>
+                                    <a class="action-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                                    <a class="action-item" href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&text={{ post.title|urlencode }}" target="_blank"><i class="bi bi-twitter-x"></i> Twitter</a>
+                                    <a class="action-item" href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&title={{ post.title|urlencode }}" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                    <a class="action-item" href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+                    <div class="card-meta-bar">
+                        <a href="#" class="author-info">
+                            {% if post.author.profile.avatar %}
+                                <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.get_full_name }}" class="author-avatar">
+                            {% else %}
+                                <div class="author-avatar-initials">
+                                    {% if post.author.first_name and post.author.last_name %}
+                                        {{ post.author.first_name.0|upper }}{{ post.author.last_name.0|upper }}
+                                    {% else %}
+                                        {{ post.author.username.0|upper }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="author-name-stack">
+                                <span class="author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                                <span class="post-date">{{ post.published_date|date:"M d, Y" }}</span>
+                            </div>
+                        </a>
+                        <div class="card-stats">
+                            <span class="stat-item" title="{{ post.views_count|default:0 }} Views">
+                                <i class="bi bi-eye-fill"></i>
+                                <span class="stat-count">{{ post.views_count|default:0 }}</span>
+                            </span>
+                            <span class="stat-item" title="{{ post.likes_count|default:0 }} Likes">
+                                <i class="bi bi-heart-fill"></i>
+                                <span class="stat-count">{{ post.likes_count|default:0 }}</span>
+                            </span>
+                            <span class="stat-item" title="{{ post.comments.count|default:0 }} Comments">
+                                <i class="bi bi-chat-fill"></i>
+                                <span class="stat-count">{{ post.comments.count|default:0 }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-illustration"><i class="bi bi-search"></i></div>
+                <h3 class="empty-title">No Articles Found</h3>
+                <p class="empty-description">{% if search_query %}We couldn't find any articles matching "<strong>{{ search_query }}</strong>". Try different keywords or browse our categories.{% elif is_for_you_page %}You're not following anyone yet. Start following authors to see their posts here.{% else %}No articles have been published yet. Check back soon!{% endif %}</p>
+                <div class="empty-actions">
+                    <a href="{% url 'blog:post_list' %}" class="btn btn-primary" style="background: var(--gradient-primary); border: none; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;"><i class="bi bi-house-door"></i> Browse All Articles</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+        <nav class="pagination-section">
+            <div class="pagination-info"><span>Showing <strong>{{ page_obj.start_index }}-{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong> results</span></div>
+            <div class="pagination-controls">
+                {% if page_obj.has_previous %}<a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" class="page-btn page-btn-nav"><i class="bi bi-chevron-double-left"></i></a><a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="page-btn page-btn-nav"><i class="bi bi-chevron-left"></i><span>Previous</span></a>{% endif %}
+                <div class="page-numbers" style="display: flex; gap: 8px;">
+                    {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<span class="page-btn page-btn-number active">{{ num }}</span>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="page-btn page-btn-number">{{ num }}</a>{% endif %}{% endfor %}
+                </div>
+                {% if page_obj.has_next %}<a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="page-btn page-btn-nav"><span>Next</span><i class="bi bi-chevron-right"></i></a><a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}" class="page-btn page-btn-nav"><i class="bi bi-chevron-double-right"></i></a>{% endif %}
+            </div>
+        </nav>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// --- Final, Cleaned JavaScript ---
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// --- Actions Card Menu Logic ---
+function toggleActionsCard(event) {
+    event.stopPropagation();
+    const trigger = event.currentTarget;
+    const actionsCard = trigger.nextElementSibling;
+    const parentCard = trigger.closest('.post-card');
+
+    document.querySelectorAll('.actions-card.show').forEach(openCard => {
+        if (openCard !== actionsCard) {
+            openCard.classList.remove('show');
+            const openShareCard = openCard.querySelector('.share-card');
+            if (openShareCard) openShareCard.classList.remove('show');
+            openCard.closest('.post-card').classList.remove('is-active');
+        }
+    });
+
+    actionsCard.classList.toggle('show');
+    parentCard.classList.toggle('is-active', actionsCard.classList.contains('show'));
+
+    if (!actionsCard.classList.contains('show')) {
+        const shareCard = actionsCard.querySelector('.share-card');
+        if (shareCard) shareCard.classList.remove('show');
+    }
+}
+
+function toggleShareCard(event) {
+    event.stopPropagation();
+    const shareTrigger = event.currentTarget;
+    const shareCard = shareTrigger.parentElement.querySelector('.share-card');
+    if (shareCard) {
+        shareCard.classList.toggle('show');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const openActionsCard = document.querySelector('.actions-card.show');
+    if (openActionsCard && !openActionsCard.contains(event.target) && !event.target.closest('.card-actions-trigger')) {
+        openActionsCard.classList.remove('show');
+        const openShareCard = openActionsCard.querySelector('.share-card');
+        if (openShareCard) openShareCard.classList.remove('show');
+        openActionsCard.closest('.post-card').classList.remove('is-active');
+    }
+});
+
+// --- Main Post List Manager ---
+const PostListManager = {
+    init() {
+        this.setupViewSwitcher();
+        this.setupAnimations();
+        this.setupCardActions(); // For bookmarks
+    },
+    setupViewSwitcher() { document.querySelectorAll('.view-btn').forEach(btn => btn.addEventListener('click', () => this.switchView(btn.dataset.view))); },
+    switchView(view) { document.querySelectorAll('.view-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view)); document.getElementById('postsGrid').className = `posts-grid ${view}-view`; localStorage.setItem('posts-view', view); },
+    loadSavedView() { this.switchView(localStorage.getItem('posts-view') || 'grid'); },
+    setupAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.opacity = '1'; entry.target.style.transform = 'translateY(0)'; observer.unobserve(entry.target); } });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.post-card').forEach(card => { card.style.opacity = '0'; card.style.transform = 'translateY(30px)'; card.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; observer.observe(card); });
+    },
+    setupCardActions() {
+        document.getElementById('postsGrid').addEventListener('click', (event) => {
+            const bookmarkAction = event.target.closest('.bookmark-action');
+            if (bookmarkAction) {
+                event.preventDefault(); // Prevent default only for bookmark AJAX action
+                event.stopPropagation();
+                this.handleBookmark(bookmarkAction);
+            }
+        });
+    },
+    async handleBookmark(menuItem) {
+        const postId = menuItem.dataset.postId;
+        {% if not user.is_authenticated %}
+        showNotification('Please log in to bookmark posts', 'error');
+        setTimeout(() => { window.location.href = '{% url "users:login" %}?next=' + window.location.pathname; }, 1500);
+        return;
+        {% endif %}
+        const textElement = menuItem.querySelector('.bookmark-text');
+        try {
+            const response = await fetch('{% url "blog:bookmark_toggle" %}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrftoken }, body: `post_id=${postId}` });
+            const data = await response.json();
+            if (data.status === 'success') {
+                menuItem.classList.toggle('active');
+                textElement.textContent = data.bookmarked ? 'Bookmarked' : 'Bookmark';
+                showNotification(data.bookmarked ? 'Added to reading list' : 'Removed from reading list', 'success');
+            } else { showNotification(data.message || 'Failed to update bookmark', 'error'); }
+        } catch (error) { showNotification('An error occurred. Please try again.', 'error'); }
+    }
+};
+
+// --- Other Helper Functions ---
+function applySorting() { const sortSelect = document.getElementById('sortSelect'); const currentUrl = new URL(window.location.href); currentUrl.searchParams.set('sort', sortSelect.value); window.location.href = currentUrl.toString(); }
+function clearSearch() { window.location.href = '{% url "blog:post_list" %}'; }
+function copyUrl(url, event) {
+    event.preventDefault();
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        showNotification('Failed to copy link.', 'error');
+    });
+}
+function showNotification(message, type = 'success') {
+    const existing = document.querySelector('.toast-notification'); if (existing) existing.remove();
+    const notification = document.createElement('div');
+    notification.className = 'toast-notification';
+    notification.style.cssText = `position: fixed; top: 100px; right: 2rem; padding: 1rem 1.5rem; background: ${type === 'success' ? 'var(--success)' : 'var(--error)'}; color: white; border-radius: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9999; display: flex; align-items: center; gap: 0.75rem; animation: slideInRight 0.3s ease;`;
+    notification.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}" style="font-size: 1.25rem;"></i><span>${message}</span>`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// --- Initialize Everything ---
+const style = document.createElement('style');
+style.textContent = `@keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } } @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(110%); } }`;
+document.head.appendChild(style);
+
+document.addEventListener('DOMContentLoaded', () => { 
+    PostListManager.init(); 
+});
+
+</script>
+{% endblock %}

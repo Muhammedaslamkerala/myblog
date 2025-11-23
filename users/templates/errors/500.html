@@ -1,0 +1,180 @@
+<!-- templates/errors/500.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - MyBlog</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --danger-color: #ef4444;
+            --danger-dark: #dc2626;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--danger-color), var(--danger-dark));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .error-container {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .error-illustration {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .btn-home, .btn-refresh {
+            background: white;
+            color: var(--danger-color);
+            border: none;
+            padding: 14px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .btn-home:hover, .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+            color: var(--danger-color);
+            text-decoration: none;
+        }
+
+        .error-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+        }
+
+        .info-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 2rem;
+            }
+            
+            .error-message {
+                font-size: 1.1rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-home, .btn-refresh {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container">
+            <div class="error-illustration">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            
+            <div class="error-code">500</div>
+            <h1 class="error-title">Internal Server Error</h1>
+            <p class="error-message">
+                Something went wrong on our end. Our team has been notified and we're working to fix it. 
+                Please try again in a few minutes.
+            </p>
+            
+            <div class="error-actions">
+                <a href="/" class="btn-home">
+                    <i class="bi bi-house"></i>
+                    Go Home
+                </a>
+                <button onclick="window.location.reload()" class="btn-refresh">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Try Again
+                </button>
+            </div>
+            
+            <div class="error-info">
+                <h3 class="info-title">What happened?</h3>
+                <p>
+                    This error occurs when our server encounters an unexpected condition. 
+                    Our technical team has been automatically notified and is investigating the issue.
+                </p>
+                <p>
+                    If the problem persists, please contact our support team with details about what you were trying to do.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

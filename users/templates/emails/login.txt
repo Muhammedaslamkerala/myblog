@@ -1,0 +1,48 @@
+{% if login_log.is_suspicious %}{{ site_name|default:"MyBlog" }} — SECURITY ALERT: Suspicious Login Detected
+
+⚠️ ACTION REQUIRED, {{ user.username }}!
+
+We detected a SUSPICIOUS sign-in to your {{ site_name|default:"MyBlog" }} account from a NEW device or location.
+
+Login Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Device:   {{ login_log.user_agent|default:"Unknown Device" }}
+Location: {{ login_log.location|default:"Unknown Location" }}
+Time:     {{ login_log.login_time }} (UTC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ If this was NOT you, IMMEDIATELY secure your account:
+
+1. Change your password: {{ security_link|default:'(Visit your account settings)' }}
+2. Review recent account activity
+3. Enable two-factor authentication if available
+
+If you recognize the details above, you can safely ignore this email. However, we recommend reviewing your account security settings.
+
+{% else %}{{ site_name|default:"MyBlog" }} — Login Notification
+
+✓ Hello, {{ user.username }}!
+
+We detected a sign-in to your {{ site_name|default:"MyBlog" }} account from a recognized device.
+
+Login Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Device:   {{ login_log.user_agent|default:"Unknown Device" }}
+Location: {{ login_log.location|default:"Unknown Location" }}
+Time:     {{ login_log.login_time }} (UTC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ This login is from a recognized device/location.
+
+If you have any security concerns, you can change your password at:
+{{ security_link|default:'(Visit your account settings)' }}
+
+{% endif %}
+
+Need help? Contact our support team.
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team
+
+---
+This is an automated security notification. Please do not reply to this email.

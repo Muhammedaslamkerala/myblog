@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your New Email</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333;">Verify Your New Email Address</h2>
+        <p>Hello <strong>{{ user.username }}</strong>,</p>
+        <p>You recently requested to change your email address to:</p>
+        <p style="font-size: 16px;"><strong>{{ new_email }}</strong></p>
+        
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; margin: 20px 0; text-align: center; border-radius: 8px;">
+            <p style="color: white; margin: 0; font-size: 14px;">Your verification code:</p>
+            <p style="color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 10px 0;">{{ otp }}</p>
+        </div>
+        
+        <p style="color: #666;">This code will expire in <strong>15 minutes</strong>.</p>
+        <p style="color: #d32f2f; font-weight: bold;">⚠️ If you didn't request this change, please ignore this email and secure your account immediately.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+            Thanks,<br>
+            The {{ site_name|default:"MyBlog" }} Team
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,572 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Posts - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* All CSS remains exactly the same */
+    :root {
+        --primary: #667eea;
+        --primary-dark: #764ba2;
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --text-heading: #1f2937;
+        --text-body: #4b5563;
+        --text-light: #6b7280;
+        --neutral-100: #f9fafb;
+        --neutral-200: #e5e7eb;
+        --neutral-700: #374151;
+        --twitter: #1DA1F2;
+        --facebook: #4267B2;
+        --linkedin: #0A66C2;
+        --whatsapp: #25D366;
+    }
+    a, a:focus, button, button:focus, .btn:focus, .page-btn:focus, .page-link:focus, .nav-link:focus, .dropdown-item:focus, .card-actions-btn:focus, input:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .form-control:focus { border-color: var(--primary); }
+    body {
+        background: linear-gradient(135deg, #f9fafb 0%, white 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .dashboard-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 5rem 0 3rem;
+        margin-top: -70px;
+        position: relative;
+        overflow: hidden;
+    }
+    .dashboard-header::before, .dashboard-header::after {
+        content: '';
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 1;
+    }
+    .dashboard-header::before { width: 500px; height: 500px; top: -250px; right: -100px; }
+    .dashboard-header::after { width: 300px; height: 300px; bottom: -150px; left: -50px; }
+    .dashboard-header .container {
+        position: relative;
+        z-index: 2;
+        padding-top: 70px;
+    }
+    .breadcrumb { background: transparent; padding: 0; margin-bottom: 1rem; }
+    .breadcrumb-item a { color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.3s ease; }
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .dashboard-subtitle { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; }
+    .btn-primary {
+        background: white; color: var(--primary-dark); border: none; padding: 0.75rem 2rem;
+        border-radius: 12px; font-weight: 700; text-decoration: none; display: inline-flex;
+        align-items: center; gap: 0.5rem; transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn-primary:hover {
+        transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); color: var(--primary-dark);
+    }
+    .nav-tabs {
+        border-bottom: 2px solid var(--neutral-200);
+        margin-bottom: 2rem;
+    }
+    .nav-tabs .nav-link {
+        border: none; padding: 1rem 1.5rem; font-weight: 600; color: var(--text-light);
+        margin-bottom: -2px; border-bottom: 2px solid transparent; transition: all 0.3s ease;
+    }
+    .nav-tabs .nav-link.active {
+        color: var(--primary); border-bottom-color: var(--primary); background: transparent;
+    }
+     .nav-tabs .badge {
+        margin-left: 0.5rem; background-color: var(--neutral-200); color: var(--text-body);
+        font-weight: 600; transition: all 0.3s ease;
+    }
+    .nav-tabs .nav-link.active .badge {
+        background-color: var(--primary); color: white;
+    }
+    .filter-search-bar { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 2rem; border: 1px solid var(--neutral-200); }
+    .form-control { padding: 0.75rem 1rem; border: 2px solid var(--neutral-200); border-radius: 12px; transition: all 0.3s ease; }
+    .search-box { position: relative; }
+    .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+    .search-box .form-control { padding-left: 2.75rem; }
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 2rem;
+    }
+    .post-card {
+        background: white; border-radius: 16px; display: flex; flex-direction: column;
+        height: 100%; overflow: visible;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #e2e8f0; transition: all 0.3s ease; position: relative;
+    }
+    .post-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border-color: var(--primary);
+    }
+    .post-card.is-active {
+        z-index: 10;
+    }
+    .card-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
+    .card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .post-card:hover .card-image { transform: scale(1.05); }
+    .card-media-overlay { 
+        position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); 
+        display: flex; align-items: center; justify-content: center; opacity: 0; 
+        transition: opacity 0.3s ease; z-index: 2; 
+    }
+    .post-card:hover .card-media-overlay { 
+        opacity: 1; 
+    }
+    .overlay-link { 
+        color: white; font-size: 16px; font-weight: 600; text-decoration: none; padding: 12px 28px; 
+        border-radius: 50px; transform: translateY(10px); 
+        transition: transform 0.3s ease, background 0.3s ease; display: flex; align-items: center; gap: 8px; 
+    }
+    .post-card:hover .overlay-link { 
+        transform: translateY(0); 
+    }
+    .overlay-link.read-link { border: 2px solid white; }
+    .overlay-link.read-link:hover { background: white; color: #1a202c; }
+    .overlay-link.edit-link { background: var(--warning); }
+    .overlay-link.edit-link:hover { background: #d97706; color: white; }
+    .card-content { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+    .card-title-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+    .card-title { font-size: 22px; font-weight: 700; line-height: 1.3; margin: 0; color: #1f2937; flex-grow: 1;}
+    .card-title a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+    .card-title a:hover { color: var(--primary); }
+    .card-excerpt { color: #6b7280; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+    .card-meta-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e5e7eb; padding-top: 16px; margin-top: auto; }
+    .author-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .author-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .author-avatar-initials { width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+    .author-name-stack { display: flex; flex-direction: column; }
+    .author-name { font-size: 14px; font-weight: 600; color: #4a5568; }
+    .post-date { font-size: 12px; color: #718096; }
+    .card-stats { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #718096; }
+    .stat-item { display: flex; align-items: center; gap: 5px; }
+    .actions-container { position: relative; }
+    .card-actions-trigger {
+        width: 36px; height: 36px; border-radius: 10px; background: #f3f4f6; border: none;
+        display: flex; align-items: center; justify-content: center; color: #718096; font-size: 16px;
+        transition: all 0.3s ease; flex-shrink: 0; cursor: pointer;
+    }
+    .card-actions-trigger:hover { background: #e5e7eb; color: #1a202c; }
+    .actions-card, .share-card {
+        position: absolute; top: 0; left: calc(100% + 10px); width: 220px;
+        background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        border: 1px solid rgba(0,0,0,0.05); padding: 8px; z-index: 100;
+        opacity: 0; visibility: hidden; transform: translateX(-10px) scale(0.95);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    }
+    .actions-card.show, .share-card.show {
+        opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+    }
+    .share-card { left: calc(100% + 8px); }
+    .action-item {
+        display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 10px;
+        margin: 2px 0; font-weight: 500; color: #4a5568; text-decoration: none; cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .action-item:hover { background: rgba(102, 126, 234, 0.1); color: var(--primary); }
+    .action-item.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+    .action-divider { height: 1px; background: #e5e7eb; margin: 8px 0; }
+    .share-trigger::after {
+        display: inline-block; content: ""; border-top: 0.3em solid transparent; border-right: 0;
+        border-bottom: 0.3em solid transparent; border-left: 0.3em solid;
+        vertical-align: middle; margin-left: auto;
+    }
+    .empty-state { text-align: center; padding: 5rem 2rem; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); grid-column: 1 / -1;}
+    .empty-state i { font-size: 4rem; color: #9ca3af; margin-bottom: 1.5rem; }
+    .empty-state h3 { color: #1f2937; margin-bottom: 1rem; font-weight: 700; }
+    .empty-state p { color: #6b7280; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'blog:home' %}"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </nav>
+                <h1 class="dashboard-title"><i class="bi bi-collection-fill me-2"></i>My Posts</h1>
+                <p class="dashboard-subtitle">Manage all your published, draft, and private posts in one place.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <a href="{% url 'blog:post_write' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Write New Post</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-content">
+    <br>
+    <div class="container">
+        <!-- Tabs and Search Bar -->
+        <ul class="nav nav-tabs" id="myPostsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="published-tab" data-bs-toggle="tab" data-bs-target="#published-tab-pane" type="button" role="tab" aria-controls="published-tab-pane" aria-selected="true">
+                    Published <span class="badge rounded-pill">{{ published_posts.paginator.count }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="drafts-tab" data-bs-toggle="tab" data-bs-target="#drafts-tab-pane" type="button" role="tab" aria-controls="drafts-tab-pane" aria-selected="false">
+                    Drafts <span class="badge rounded-pill">{{ draft_posts.paginator.count }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="private-tab" data-bs-toggle="tab" data-bs-target="#private-tab-pane" type="button" role="tab" aria-controls="private-tab-pane" aria-selected="false">
+                    Private <span class="badge rounded-pill">{{ private_posts.paginator.count }}</span>
+                </button>
+            </li>
+        </ul>
+        <div class="filter-search-bar">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Search your posts..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="tab-content" id="myPostsTabContent">
+            <!-- ========================== PUBLISHED POSTS ========================== -->
+            <div class="tab-pane fade show active" id="published-tab-pane" role="tabpanel" aria-labelledby="published-tab" tabindex="0">
+                <div class="posts-grid">
+                    {% for post in published_posts %}
+                        <article class="post-card status-published">
+                            <a href="{{ post.get_absolute_url }}" class="card-media" target="_blank">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title|default:'Post image' }}" class="card-image">
+                                {% else %}
+                                    <div class="card-image" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+                                {% endif %}
+                                <div class="card-media-overlay">
+                                    <span class="overlay-link read-link"><i class="bi bi-book-fill"></i> Read Article</span>
+                                </div>
+                            </a>
+                            <div class="card-content">
+                                <div class="card-title-header">
+                                    <h2 class="card-title"><a href="{{ post.get_absolute_url }}" target="_blank">{{ post.title|default:"Untitled Post" }}</a></h2>
+                                    <div class="actions-container">
+                                        <button class="card-actions-trigger" onclick="toggleActionsCard(event)" title="More options"><i class="bi bi-three-dots-vertical"></i></button>
+                                        <div class="actions-card">
+                                            <!-- MODIFIED: Edit link now includes the next parameter -->
+                                            <a class="action-item" href="{% url 'blog:post_edit' post.slug %}?next={{ request.get_full_path|urlencode }}">
+                                                <i class="bi bi-pencil-fill"></i><span>Edit</span>
+                                            </a>
+                                            <div class="action-item share-trigger" onclick="toggleShareCard(event)">
+                                                <i class="bi bi-share-fill"></i><span>Share</span>
+                                            </div>
+                                            <div class="action-divider"></div>
+                                            <!-- MODIFIED: Delete is now a simple link -->
+                                            <a class="action-item delete" href="{% url 'blog:post_delete' post.slug %}">
+                                                <i class="bi bi-trash-fill"></i><span>Delete</span>
+                                            </a>
+                                            <div class="share-card">
+                                                <a class="action-item" href="#" onclick="copyUrl('{{ request.build_absolute_uri }}{{ post.get_absolute_url }}', event)"><i class="bi bi-clipboard"></i> Copy URL</a>
+                                                <div class="action-divider"></div>
+                                                <a class="action-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                                                <a class="action-item" href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&text={{ post.title|urlencode }}" target="_blank"><i class="bi bi-twitter-x"></i> Twitter</a>
+                                                <a class="action-item" href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&title={{ post.title|urlencode }}" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                                <a class="action-item" href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="card-excerpt">{{ post.excerpt|truncatechars:120|default:"No description available." }}</p>
+                                <div class="card-meta-bar">
+                                    <a href="#" class="author-info">
+                                        {% if request.user.profile.avatar %}
+                                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name }}" class="author-avatar">
+                                        {% else %}
+                                            <div class="author-avatar-initials">{{ request.user.first_name.0|upper }}{{ request.user.last_name.0|upper|default:request.user.username.0|upper }}</div>
+                                        {% endif %}
+                                        <div class="author-name-stack">
+                                            <span class="author-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                            <span class="post-date">{{ post.published_date|date:"M d, Y" }}</span>
+                                        </div>
+                                    </a>
+                                    <div class="card-stats">
+                                        <span class="stat-item"><i class="bi bi-eye-fill"></i><span>{{ post.views_count|default:0 }}</span></span>
+                                        <span class="stat-item"><i class="bi bi-heart-fill"></i><span>{{ post.likes_count|default:0 }}</span></span>
+                                        <span class="stat-item"><i class="bi bi-chat-fill"></i><span>{{ post.comments.count|default:0 }}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-file-earmark-check"></i>
+                            <h3>No Published Posts Yet</h3>
+                            <p>You haven't published any posts yet. Start writing and share your stories with the world!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ========================== DRAFTS TAB ========================== -->
+            <div class="tab-pane fade" id="drafts-tab-pane" role="tabpanel" aria-labelledby="drafts-tab" tabindex="0">
+                <div class="posts-grid">
+                    {% for post in draft_posts %}
+                        <article class="post-card status-draft">
+                            <a href="{% url 'blog:post_edit' post.slug %}?next={{ request.get_full_path|urlencode }}" class="card-media">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title|default:'Post image' }}" class="card-image">
+                                {% else %}
+                                    <div class="card-image" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+                                {% endif %}
+                                <div class="card-media-overlay">
+                                    <span class="overlay-link edit-link"><i class="bi bi-pencil-fill"></i> Continue Editing</span>
+                                </div>
+                            </a>
+                            <div class="card-content">
+                                <div class="card-title-header">
+                                    <h2 class="card-title"><a href="{% url 'blog:post_edit' post.slug %}?next={{ request.get_full_path|urlencode }}" class="draft-title">{{ post.title|default:"Untitled Draft" }}</a></h2>
+                                    <div class="actions-container">
+                                        <button class="card-actions-trigger" onclick="toggleActionsCard(event)" title="More options"><i class="bi bi-three-dots-vertical"></i></button>
+                                        <div class="actions-card">
+                                            <a class="action-item" href="{% url 'blog:post_edit' post.slug %}?next={{ request.get_full_path|urlencode }}"><i class="bi bi-pencil-fill"></i><span>Edit</span></a>
+                                            <a class="action-item" href="{{ post.get_absolute_url }}?preview=true" target="_blank"><i class="bi bi-eye"></i><span>Preview</span></a>
+                                            <div class="action-divider"></div>
+                                            <!-- MODIFIED: Delete is now a simple link -->
+                                            <a class="action-item delete" href="{% url 'blog:post_delete' post.slug %}">
+                                                <i class="bi bi-trash-fill"></i><span>Delete</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="card-excerpt">{{ post.excerpt|truncatechars:120|default:"No description yet." }}</p>
+                                <div class="card-meta-bar">
+                                    <a href="#" class="author-info">
+                                        {% if request.user.profile.avatar %}
+                                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name }}" class="author-avatar">
+                                        {% else %}
+                                            <div class="author-avatar-initials">{{ request.user.first_name.0|upper }}{{ request.user.last_name.0|upper|default:request.user.username.0|upper }}</div>
+                                        {% endif %}
+                                        <div class="author-name-stack">
+                                            <span class="author-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                            <span class="post-date">Draft</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-file-earmark-plus"></i>
+                            <h3>No Drafts Found</h3>
+                            <p>You don't have any draft posts yet. Start writing and save it as a draft to see it here.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ========================== PRIVATE POSTS TAB ========================== -->
+            <div class="tab-pane fade" id="private-tab-pane" role="tabpanel" aria-labelledby="private-tab" tabindex="0">
+                 <div class="posts-grid">
+                    {% for post in private_posts %}
+                        <article class="post-card status-private">
+                             <a href="{{ post.get_absolute_url }}" class="card-media" target="_blank">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title|default:'Post image' }}" class="card-image">
+                                {% else %}
+                                    <div class="card-image" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+                                {% endif %}
+                                <div class="card-media-overlay">
+                                    <span class="overlay-link read-link"><i class="bi bi-book-fill"></i> Read Article</span>
+                                </div>
+                            </a>
+                            <div class="card-content">
+                                <div class="card-title-header">
+                                    <h2 class="card-title"><a href="{{ post.get_absolute_url }}" target="_blank">{{ post.title|default:"Untitled Post" }}</a></h2>
+                                    <div class="actions-container">
+                                        <button class="card-actions-trigger" onclick="toggleActionsCard(event)" title="More options"><i class="bi bi-three-dots-vertical"></i></button>
+                                        <div class="actions-card">
+                                            <a class="action-item" href="{% url 'blog:post_edit' post.slug %}?next={{ request.get_full_path|urlencode }}"><i class="bi bi-pencil-fill"></i><span>Edit</span></a>
+                                            <div class="action-item share-trigger" onclick="toggleShareCard(event)">
+                                                <i class="bi bi-share-fill"></i><span>Share</span>
+                                            </div>
+                                            <div class="action-divider"></div>
+                                            <!-- MODIFIED: Delete is now a simple link -->
+                                            <a class="action-item delete" href="{% url 'blog:post_delete' post.slug %}">
+                                                <i class="bi bi-trash-fill"></i><span>Delete</span>
+                                            </a>
+                                            <div class="share-card">
+                                                <a class="action-item" href="#" onclick="copyUrl('{{ request.build_absolute_uri }}{{ post.get_absolute_url }}', event)"><i class="bi bi-clipboard"></i> Copy URL</a>
+                                                <div class="action-divider"></div>
+                                                <a class="action-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                                                <a class="action-item" href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&text={{ post.title|urlencode }}" target="_blank"><i class="bi bi-twitter-x"></i> Twitter</a>
+                                                <a class="action-item" href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}{{ post.get_absolute_url }}&title={{ post.title|urlencode }}" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                                <a class="action-item" href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri }}{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="card-excerpt">{{ post.excerpt|truncatechars:120|default:"No description available." }}</p>
+                                <div class="card-meta-bar">
+                                     <a href="#" class="author-info">
+                                        {% if request.user.profile.avatar %}
+                                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name }}" class="author-avatar">
+                                        {% else %}
+                                            <div class="author-avatar-initials">{{ request.user.first_name.0|upper }}{{ request.user.last_name.0|upper|default:request.user.username.0|upper }}</div>
+                                        {% endif %}
+                                        <div class="author-name-stack">
+                                            <span class="author-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                            <span class="post-date">{{ post.published_date|date:"M d, Y" }}</span>
+                                        </div>
+                                    </a>
+                                    <div class="card-stats">
+                                        <span class="stat-item"><i class="bi bi-eye-fill"></i><span>{{ post.views_count|default:0 }}</span></span>
+                                        <span class="stat-item"><i class="bi bi-heart-fill"></i><span>{{ post.likes_count|default:0 }}</span></span>
+                                        <span class="stat-item"><i class="bi bi-chat-fill"></i><span>{{ post.comments.count|default:0 }}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-shield-lock"></i>
+                            <h3>No Private Posts</h3>
+                            <p>Private posts are only visible to you.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// --- Final, Corrected JavaScript ---
+
+function toggleActionsCard(event) {
+    event.stopPropagation();
+    const trigger = event.currentTarget;
+    const actionsCard = trigger.nextElementSibling;
+    const parentCard = trigger.closest('.post-card');
+
+    document.querySelectorAll('.actions-card.show').forEach(openCard => {
+        if (openCard !== actionsCard) {
+            openCard.classList.remove('show');
+            const openShareCard = openCard.querySelector('.share-card');
+            if (openShareCard) openShareCard.classList.remove('show');
+            openCard.closest('.post-card').classList.remove('is-active');
+        }
+    });
+
+    actionsCard.classList.toggle('show');
+    parentCard.classList.toggle('is-active', actionsCard.classList.contains('show'));
+
+    if (!actionsCard.classList.contains('show')) {
+        const shareCard = actionsCard.querySelector('.share-card');
+        if (shareCard) shareCard.classList.remove('show');
+    }
+}
+
+function toggleShareCard(event) {
+    event.stopPropagation();
+    const shareTrigger = event.currentTarget;
+    const shareCard = shareTrigger.parentElement.querySelector('.share-card');
+    if (shareCard) {
+        shareCard.classList.toggle('show');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const openActionsCard = document.querySelector('.actions-card.show');
+    if (openActionsCard && !openActionsCard.contains(event.target) && !event.target.closest('.card-actions-trigger')) {
+        openActionsCard.classList.remove('show');
+        const openShareCard = openActionsCard.querySelector('.share-card');
+        if (openShareCard) openShareCard.classList.remove('show');
+        openActionsCard.closest('.post-card').classList.remove('is-active');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Live Search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const activeTabPane = document.querySelector('.tab-pane.active');
+            if (activeTabPane) {
+                activeTabPane.querySelectorAll('.post-card').forEach(card => {
+                    const title = card.querySelector('.card-title a').textContent.toLowerCase();
+                    const excerpt = card.querySelector('.card-excerpt')?.textContent.toLowerCase() || '';
+                    card.style.display = (title.includes(query) || excerpt.includes(query)) ? 'flex' : 'none';
+                });
+            }
+        });
+    }
+
+    // Tab Persistence
+    const hash = window.location.hash || "#published-tab-pane";
+    const triggerEl = document.querySelector('.nav-tabs button[data-bs-target="' + hash + '"]');
+    if (triggerEl) {
+        new bootstrap.Tab(triggerEl).show();
+    }
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tabButton => {
+        tabButton.addEventListener('shown.bs.tab', function (event) {
+            history.pushState(null, null, event.target.getAttribute('data-bs-target'));
+        });
+    });
+});
+
+function copyUrl(url, event) {
+    event.preventDefault(); 
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        showNotification('Failed to copy. Please manually copy the link.', 'warning');
+    });
+}
+
+// REMOVED: The confirmDelete function is no longer needed. The backend handles it.
+
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed; top: 100px; right: 20px; padding: 16px 24px;
+        background: ${type === 'success' ? 'var(--success)' : 'var(--error)'};
+        color: white; border-radius: 12px; font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 10000;
+        animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px;`;
+    notification.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'x-circle-fill'}"></i><span>${message}</span>`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+if (!document.getElementById('my-app-animations')) {
+    const styleSheet = document.createElement("style");
+    styleSheet.id = 'my-app-animations';
+    styleSheet.innerText = `
+        @keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } }
+        @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(110%); } }
+    `;
+    document.head.appendChild(styleSheet);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,625 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ series.title }} - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --secondary: #764ba2;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success: #10b981;
+    --text-heading: #1f2937;
+    --text-body: #4b5563;
+    --text-light: #6b7280;
+}
+
+body {
+    background: linear-gradient(135deg, #f9fafb 0%, white 100%);
+}
+
+/* Hero Header */
+.series-hero {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 140px 0 80px;
+    margin-top: -70px;
+    position: relative;
+    overflow: hidden;
+}
+.series-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+.breadcrumb-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+.breadcrumb-item {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.breadcrumb-item:hover {
+    color: white;
+}
+.breadcrumb-item.active {
+    color: white;
+    font-weight: 600;
+}
+.series-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+.series-title {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+.series-description {
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.95);
+    max-width: 800px;
+    margin-bottom: 32px;
+}
+.series-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+.meta-item i {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+/* Main Content */
+.series-content {
+    padding: 60px 0 100px;
+}
+.series-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+    align-items: start;
+}
+
+/* Posts List */
+.section-header {
+    margin-bottom: 32px;
+}
+.section-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-heading);
+    margin-bottom: 8px;
+}
+.section-subtitle {
+    font-size: 16px;
+    color: var(--text-light);
+}
+
+.series-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: series-counter;
+}
+.series-post-item {
+    display: flex;
+    gap: 24px;
+    position: relative;
+    padding: 28px 28px 28px 70px;
+    border-left: 4px solid #e5e7eb;
+    margin-left: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    border-radius: 0 20px 20px 0;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.series-post-item.read {
+    border-left-color: var(--success);
+    background: #f0fdf4;
+}
+.series-post-item:hover {
+    border-left-color: var(--primary);
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.series-post-item::before {
+    counter-increment: series-counter;
+    content: counter(series-counter);
+    position: absolute;
+    left: -26px;
+    top: 28px;
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 4px solid #e5e7eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    color: #6b7280;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.series-post-item.read::before {
+    border-color: var(--success);
+    background: var(--success);
+    color: white;
+    content: '✓';
+}
+.series-post-item:hover::before {
+    border-color: var(--primary);
+    background: var(--gradient-primary);
+    color: white;
+    transform: scale(1.1);
+}
+.series-post-item.read:hover::before {
+    border-color: var(--success);
+    background: var(--success);
+}
+
+.series-thumbnail {
+    width: 180px;
+    height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    flex-shrink: 0;
+    position: relative;
+}
+.series-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.series-post-item:hover .series-thumbnail img {
+    transform: scale(1.1);
+}
+.thumbnail-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.series-post-item:hover .thumbnail-overlay {
+    opacity: 1;
+}
+.read-indicator {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.read-indicator:hover {
+    transform: scale(1.05);
+    background: white;
+}
+.read-indicator.completed {
+    background: var(--success);
+    color: white;
+}
+.read-indicator.completed:hover {
+    background: #0f9b6b;
+}
+
+.series-post-details {
+    flex: 1;
+    min-width: 0;
+}
+.post-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+.post-title a {
+    color: var(--text-heading);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.post-title a:hover {
+    color: var(--primary);
+}
+.post-excerpt {
+    color: var(--text-light);
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+.post-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: var(--text-light);
+}
+.post-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.post-meta-item i {
+    font-size: 15px;
+}
+
+/* Sidebar */
+.sidebar-sticky {
+    position: sticky;
+    top: 100px;
+}
+.sidebar-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+}
+.sidebar-card-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--text-heading);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sidebar-card-title i {
+    color: var(--primary);
+}
+
+/* Author Card */
+.author-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.author-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+}
+.author-info {
+    flex: 1;
+    min-width: 0;
+}
+.author-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: 4px;
+}
+.author-role {
+    font-size: 14px;
+    color: var(--text-light);
+}
+.author-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+.stat-box {
+    text-align: center;
+}
+.stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-heading);
+    display: block;
+}
+.stat-label {
+    font-size: 12px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.follow-btn {
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Series Progress Card */
+.progress-bar-wrapper {
+    margin-bottom: 20px;
+}
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.progress-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-body);
+}
+.progress-percentage {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary);
+}
+.progress-bar {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 50px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 50px;
+    transition: width 0.6s ease;
+}
+.series-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+.stat-item {
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .series-hero {
+        padding: 120px 0 60px;
+    }
+    .series-layout {
+        grid-template-columns: 1fr;
+    }
+    .sidebar-sticky {
+        position: static;
+    }
+    .series-post-item {
+        flex-direction: column;
+        padding: 20px 20px 20px 60px;
+    }
+    .series-thumbnail {
+        width: 100%;
+        height: 200px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Header -->
+<section class="series-hero">
+    <div class="container">
+        <div class="hero-content">
+            <nav class="breadcrumb-modern">
+                <a href="{% url 'blog:home' %}" class="breadcrumb-item"><i class="bi bi-house-door"></i> Home</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="{% url 'blog:all_series_list' %}" class="breadcrumb-item">Series</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item active">{{ series.title|truncatechars:50 }}</span>
+            </nav>
+            <div class="series-badge">
+                <i class="bi bi-collection-fill"></i>
+                <span>Series Collection</span>
+            </div>
+            <h1 class="series-title">{{ series.title }}</h1>
+            {% if series.description %}
+            <p class="series-description">{{ series.description }}</p>
+            {% endif %}
+            <div class="series-meta">
+                <div class="meta-item"><i class="bi bi-file-earmark-text-fill"></i><span><strong>{{ total_posts_count }}</strong> Article{{ total_posts_count|pluralize }}</span></div>
+                <div class="meta-item"><i class="bi bi-person-fill"></i><span>By <strong>{{ series.author.get_full_name|default:series.author.username }}</strong></span></div>
+                <div class="meta-item"><i class="bi bi-calendar-fill"></i><span>Created {{ series.created_at|date:"M d, Y" }}</span></div>
+                {% if total_series_reading_time %}
+                <div class="meta-item"><i class="bi bi-clock-fill"></i><span>{{ total_series_reading_time }} min total</span></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="series-content">
+    <div class="container">
+        <div class="series-layout">
+            <!-- Posts List -->
+            <div class="series-main">
+                <div class="section-header">
+                    <h2 class="section-title">Series Articles</h2>
+                    <p class="section-subtitle">Follow along in order to get the complete learning experience</p>
+                </div>
+                {% if posts_in_series %}
+                <ol class="series-posts-list">
+                    {% for post in posts_in_series %}
+                    <li class="series-post-item {% if post.id in read_post_ids %}read{% endif %}" id="post-item-{{ post.id }}">
+                        <div class="series-thumbnail">
+                            {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; "></div>
+                            {% endif %}
+                            <div class="thumbnail-overlay">
+                                {% if user.is_authenticated %}
+                                <button class="read-indicator {% if post.id in read_post_ids %}completed{% endif %}" 
+                                        data-post-id="{{ post.id }}" 
+                                        onclick="toggleReadStatus(this)">
+                                    <i class="bi bi-{% if post.id in read_post_ids %}check-circle-fill{% else %}book{% endif %}"></i>
+                                    <span>Read</span>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="series-post-details">
+                            <h3 class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+                            <p class="post-excerpt">{{ post.excerpt|truncatechars:150 }}</p>
+                            <div class="post-meta-row">
+                                <div class="post-meta-item"><i class="bi bi-clock"></i><span>{{ post.get_reading_time }} min read</span></div>
+                                <div class="post-meta-item"><i class="bi bi-calendar3"></i><span>{{ post.published_date|date:"M d, Y" }}</span></div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <div class="empty-state">No Articles Yet</div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="series-sidebar">
+                <div class="sidebar-sticky">
+                    <!-- Author Card -->
+                    <div class="sidebar-card">
+                        <h4 class="sidebar-card-title"><i class="bi bi-person-circle"></i> About the Author</h4>
+                        <div class="author-header">
+                            <div class="author-avatar">
+                                {% if series.author.profile.avatar %}
+                                    <img src="{{ series.author.profile.avatar.url }}" alt="{{ series.author.get_full_name }}">
+                                {% else %}
+                                    {{ series.author.first_name.0|upper }}{{ series.author.last_name.0|upper|default:series.author.username.0|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">{{ series.author.get_full_name|default:series.author.username }}</div>
+                                <div class="author-role">Series Creator</div>
+                            </div>
+                        </div>
+                        <div class="author-stats">
+                            <div class="stat-box">
+                                <span class="stat-value">{{ series.author.posts.count|default:0 }}</span>
+                                <span class="stat-label">Posts</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-value">{{ series.author.followers.count|default:0 }}</span>
+                                <span class="stat-label">Followers</span>
+                            </div>
+                        </div>
+                        {# Follow button logic can be added here if needed #}
+                    </div>
+                    
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Helper function to get the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Helper function to show temporary notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed; top: 100px; right: 20px; padding: 16px 24px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white; border-radius: 12px; font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9999;
+        transform: translateX(120%); animation: slideInRight 0.4s ease forwards;
+    `;
+    notification.innerHTML = `<span>${message}</span>`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.4s ease forwards';
+        setTimeout(() => notification.remove(), 400);
+    }, 3000);
+}
+
+// Add animation keyframes for notifications
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight { from { transform: translateX(120%); } to { transform: translateX(0); } }
+    @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(120%); } }
+`;
+document.head.appendChild(style);
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{{ site_name|default:"MyBlog" }} — New Comment on Your Post
+
+Hi {{ user.username }},
+
+{{ comment.author_name }} left a new comment on your post: "{{ comment.post_title }}"
+
+Comment Preview:
+"{{ comment.content|default:"Click the link below to see the full comment." }}"
+
+View Comment & Reply:
+{{ comment.url }}
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

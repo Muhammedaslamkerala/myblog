@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if series %}Edit Series{% else %}Create New Series{% endif %} - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+/* STANDALONE STYLES FOR SERIES FORM PAGE */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary: #667eea;
+}
+body { 
+    background-color: #f8f9fa; 
+}
+.dashboard-header {
+    background: #ffffff;
+    padding: 2rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-top: 70px;
+}
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.page-title i { color: var(--primary); }
+.dashboard-main {
+    padding: 3rem 0;
+}
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+.form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+.btn-primary-gradient {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.btn-primary-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 2rem;
+}
+.btn-secondary {
+    color: #4b5563;
+    font-weight: 600;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header">
+    <div class="container">
+        <h1 class="page-title">
+            <i class="bi bi-collection-fill"></i> 
+            {% if series %}
+                Edit Series: {{ series.title }}
+            {% else %}
+                Create a New Series
+            {% endif %}
+        </h1>
+    </div>
+</header>
+
+<main class="dashboard-main">
+    <div class="container">
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Series Title</label>
+                    {{ form.title }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+
+                <div class="form-actions">
+                    <a href="{% url 'blog:my_series_list' %}" class="btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-primary-gradient">
+                        {% if series %}Update Series{% else %}Save Series{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,1365 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load blog_tags %}
+
+{% block title %}{{ post.title }} - MyBlog{% endblock %}
+
+{% block meta_description %}{{ post.meta_description|default:post.summary|default:post.excerpt|truncatechars:160 }}{% endblock %}
+
+{% block extra_css %}
+{% comment %} <link rel="stylesheet" href="{% static 'blog/css/post-detail.css' %}"> {% endcomment %}
+<style>
+    .ck-content img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin: 1.5rem auto;
+        display: block;
+    }
+    </style>
+<style>
+    /* Modern Post Detail - Critical Styles */
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #ec4899;
+        --success: #10b981;
+        --danger: #ef4444;
+        --dark: #0f172a;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+    /* REMOVE THIS BLOCK COMPLETELY */
+.main-content {
+    margin-top: 80px;
+    min-height: calc(100vh - 200px);
+}
+
+/* KEEP your existing body rule, just make sure it has margin:0 */
+body {
+    padding-top: 0 !important;
+    background: var(--gray-50);
+    margin: 0;
+    padding: 0;
+}
+
+/* UPDATE only the .post-hero rule – add these two lines */
+.post-hero {
+    position: relative;
+    height: 60vh;
+    min-height: 500px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    overflow: hidden;
+    margin-bottom: -100px;
+    margin-top: -80px;     /* ← NEW: removes the white gap */
+    padding-top: 80px;     /* ← NEW: keeps content in the right place */
+}
+    .post-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.8) 100%);
+    }
+    .post-hero-image {
+        position: absolute;
+        inset: 0;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+    }
+    .post-hero-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 3rem 0;
+        color: white;
+    }
+    .post-breadcrumb {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+    .post-breadcrumb a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .post-breadcrumb a:hover {
+        opacity: 0.7;
+    }
+    .post-hero-title {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    .post-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2rem;
+        font-size: 0.95rem;
+    }
+    .hero-author {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .hero-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: white;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-lg);
+    }
+    .hero-stats {
+        display: flex;
+        gap: 1.5rem;
+    }
+    .hero-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+    }
+    /* Content Card */
+    .post-content-card {
+        position: relative;
+        z-index: 10;
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow-xl);
+        padding: 3rem;
+        margin-bottom: 2rem;
+        margin-top: 6rem;
+    }
+    .post-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    .modern-category {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-sm);
+    }
+    .modern-category:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        color: white;
+    }
+    /* ==================== ARTICLE BODY – BEAUTIFUL & FIXED ==================== */
+.article-body,
+.ck-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--gray-700);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Headings */
+.article-body h2,
+.ck-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 3rem 0 1.5rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.article-body h2::before,
+.ck-content h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #6366f1, #a855f7);
+    border-radius: 4px;
+}
+
+.article-body h3,
+.ck-content h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 2.5rem 0 1rem;
+}
+
+/* Paragraphs & Links */
+.article-body p,
+.ck-content p {
+    margin-bottom: 1.6rem;
+}
+
+.article-body a,
+.ck-content a {
+    color: #6366f1;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.article-body a:hover,
+.ck-content a:hover {
+    border-bottom-color: #6366f1;
+}
+
+/* Blockquote */
+.article-body blockquote,
+.ck-content blockquote {
+    background: #f8fafc;
+    border-left: 5px solid #6366f1;
+    padding: 1.8rem 2rem;
+    margin: 2.5rem 0;
+    border-radius: 0 16px 16px 0;
+    font-style: italic;
+    color: #475569;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* ==================== IMAGES – THIS IS THE FIX YOU NEED ==================== */
+.article-body img,
+.ck-content img,
+.ck-content .image img,
+.ck-content figure.image img {
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    margin: 2rem auto !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-body img:hover,
+.ck-content img:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.18) !important;
+}
+
+/* Image captions (if CKEditor adds figure > figcaption) */
+.article-body figure,
+.ck-content figure {
+    margin: 2.5rem 0;
+    text-align: center;
+}
+
+.article-body figcaption,
+.ck-content figcaption {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-top: 0.8rem;
+    font-style: italic;
+}
+
+/* Inline code */
+.article-body code,
+.ck-content code {
+    background: #f1f5f9;
+    color: #e11d48;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.92em;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Code blocks */
+.article-body pre,
+.ck-content pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 2rem 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+    /* Modern Tags */
+    .modern-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 2rem 0;
+        border-top: 2px solid var(--gray-200);
+        margin-top: 3rem;
+    }
+    .modern-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .modern-tag:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    /* Action Bar */
+    .post-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        background: var(--gray-50);
+        border-radius: 16px;
+        margin-top: 3rem;
+    }
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+    }
+    .action-btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    .action-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        color: white;
+    }
+    .action-btn-primary.liked {
+        background: linear-gradient(135deg, var(--danger), #dc2626);
+    }
+    .action-btn i {
+        font-size: 1.25rem;
+    }
+    /* Comments Section */
+    .comments-section {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        margin-top: 2rem;
+    }
+    .comments-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    .comments-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .comments-title i {
+        color: var(--primary);
+    }
+    .comment-form-modern {
+        background: var(--gray-50);
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 3rem;
+    }
+    .form-header-modern {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .modern-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .modern-avatar.small {
+        width: 40px;
+        height: 40px;
+        font-size: 0.875rem;
+    }
+    .modern-user-info h4 {
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0;
+    }
+    .modern-user-info span {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+    .modern-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+    .modern-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .modern-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    /* Modern Comment */
+    .modern-comment {
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s;
+    }
+    .modern-comment:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+    .comment-header-modern {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .comment-meta-modern {
+        flex: 1;
+    }
+    .comment-author-modern {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+    .comment-date-modern {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+    .comment-actions-modern {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .comment-action-btn {
+        background: none;
+        border: none;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .comment-action-btn:hover {
+        background: var(--gray-100);
+        color: var(--primary);
+    }
+    .comment-action-btn.delete:hover {
+        color: var(--danger);
+        background: #fef2f2;
+    }
+    .comment-body-modern {
+        color: var(--gray-700);
+        line-height: 1.6;
+    }
+    /* Reply Section */
+    .comment-replies-modern {
+        margin-left: 3rem;
+        margin-top: 1rem;
+        padding-left: 1.5rem;
+        border-left: 3px solid var(--gray-200);
+    }
+    .reply-modern {
+        background: var(--gray-50);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    /* Auth Prompt */
+    .auth-prompt-modern {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+        border-radius: 16px;
+        margin-bottom: 3rem;
+    }
+    .auth-icon-modern {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+    }
+    /* Sidebar */
+    .modern-sidebar-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-top: 6rem;
+        margin-bottom: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+    .sidebar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .sidebar-title i {
+        color: var(--primary);
+    }
+    /* Chat Modal Styles */
+    #chat-modal-overlay { 
+        position: fixed; 
+        inset: 0; 
+        background: rgba(15, 23, 42, 0.7); 
+        backdrop-filter: blur(8px); 
+        z-index: 9998; 
+        opacity: 0; 
+        transition: opacity 0.3s ease; 
+        pointer-events: none; 
+    }
+    #chat-modal { 
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%) scale(0.95); 
+        z-index: 9999; 
+        background: white; 
+        border-radius: 24px; 
+        box-shadow: var(--shadow-xl); 
+        width: 90%; 
+        max-width: 550px; 
+        height: 70vh; 
+        max-height: 600px; 
+        opacity: 0; 
+        transition: opacity 0.3s ease, transform 0.3s ease; 
+        pointer-events: none; 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden; 
+    }
+    #chat-modal-overlay.visible, #chat-modal.visible { 
+        opacity: 1; 
+        pointer-events: auto; 
+    }
+    #chat-modal.visible { 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+    .chat-modal-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 1rem 1.5rem; 
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+        color: white; 
+        flex-shrink: 0; 
+    }
+    .chat-modal-title { 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        display: flex; 
+        align-items: center; 
+        gap: 0.75rem; 
+        margin: 0; 
+    }
+    #chat-modal-close-btn { 
+        background: rgba(255, 255, 255, 0.2); 
+        border: none; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%; 
+        cursor: pointer; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        color: white; 
+        font-size: 1.5rem; 
+        transition: all 0.2s; 
+    }
+    #chat-modal-close-btn:hover { 
+        background: rgba(255, 255, 255, 0.3); 
+        transform: rotate(90deg); 
+    }
+    .chat-modal-body { 
+        flex-grow: 1; 
+        display: flex; 
+        flex-direction: column; 
+        padding: 1rem; 
+        overflow: hidden; 
+    }
+    #qa-chat-messages { 
+        flex-grow: 1; 
+        overflow-y: auto; 
+        padding-right: 0.5rem; 
+        margin-bottom: 1rem; 
+    }
+    .chat-modal-footer { 
+        flex-shrink: 0; 
+    }
+    #qa-chat-form { 
+        display: flex; 
+        gap: 0.5rem; 
+    }
+    #qa-question-input { 
+        flex-grow: 1; 
+        border: 2px solid var(--gray-200); 
+        border-radius: 8px; 
+        padding: 0.75rem; 
+        transition: all 0.2s; 
+    }
+    #qa-question-input:focus { 
+        outline: none; 
+        border-color: var(--primary); 
+    }
+    #qa-chat-form button { 
+        padding: 0.75rem 1.25rem; 
+    }
+    #qa-chat-form button:disabled { 
+        background: var(--gray-300); 
+        cursor: not-allowed; 
+    }
+    .user-message, .ai-message { 
+        padding: 0.75rem 1rem; 
+        border-radius: 12px; 
+        margin-bottom: 0.75rem; 
+        max-width: 85%; 
+        line-height: 1.5; 
+        word-wrap: break-word; 
+    }
+    .user-message { 
+        background: var(--primary); 
+        color: white; 
+        margin-left: auto; 
+        border-bottom-right-radius: 4px; 
+    }
+    .ai-message { 
+        background: var(--gray-200); 
+        color: var(--dark); 
+        margin-right: auto; 
+        border-bottom-left-radius: 4px; 
+    }
+    /* Focus Reading Mode */
+    body.focus-mode {
+        background: #1a1a1a;
+    }
+    /* Hide navbar and footer in focus mode */
+    body.focus-mode nav,
+    body.focus-mode header,
+    body.focus-mode footer,
+    body.focus-mode .navbar,
+    body.focus-mode .site-header,
+    body.focus-mode .site-footer {
+        display: none !important;
+    }
+    body.focus-mode .post-hero,
+    body.focus-mode aside,
+    body.focus-mode .comments-section,
+    body.focus-mode .post-actions,
+    body.focus-mode .modern-tags,
+    body.focus-mode .post-categories {
+        display: none !important;
+    }
+    body.focus-mode .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    body.focus-mode .post-content-card {
+        background: #2a2a2a;
+        color: #e0e0e0;
+        margin-top: 0 !important;
+        padding-top: 4rem !important;
+        max-width: 900px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        border-radius: 0 !important;
+        min-height: 100vh;
+        box-shadow: none;
+    }
+    body.focus-mode .article-body {
+        max-width: 100%;
+        font-size: 1.3rem;
+        line-height: 2;
+        color: #e0e0e0;
+        padding: 2rem 4rem;
+    }
+    body.focus-mode .article-body h2,
+    body.focus-mode .article-body h3 {
+        color: #ffffff;
+    }
+    body.focus-mode .article-body code {
+        background: #1a1a1a;
+        color: #f472b6;
+    }
+    body.focus-mode .article-body blockquote {
+        background: #1a1a1a;
+        border-left-color: var(--primary);
+        color: #e0e0e0;
+    }
+    body.focus-mode .article-body img {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+    /* Reading Progress Bar for Focus Mode */
+    #focus-progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        z-index: 10000;
+        transition: width 0.1s ease;
+        display: none;
+    }
+    body.focus-mode #focus-progress-bar {
+        display: block;
+    }
+    /* Smooth transition for focus mode */
+    body,
+    nav,
+    header,
+    footer,
+    .post-hero,
+    aside,
+    .post-content-card {
+        transition: all 0.3s ease;
+    }
+    #focus-mode-toggle {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: var(--shadow-xl);
+        z-index: 1000;
+        transition: all 0.3s;
+    }
+    #focus-mode-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+    }
+    body.focus-mode #focus-mode-toggle {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+        .post-hero {
+            height: 50vh;
+            min-height: 400px;
+            margin-bottom: -50px;
+        }
+        .post-hero-title {
+            font-size: 2rem;
+        }
+        .post-content-card,
+        .comments-section {
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+        .article-body {
+            font-size: 1rem;
+        }
+        .comment-replies-modern {
+            margin-left: 1rem;
+        }
+        .modern-sidebar-card {
+            position: static;
+            margin-top: 2rem;
+        }
+        #focus-mode-toggle {
+            bottom: 1rem;
+            right: 1rem;
+            width: 48px;
+            height: 48px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button id="focus-mode-toggle" title="Toggle Focus Reading Mode" aria-label="Toggle focus mode"><i class="bi bi-book"></i></button>
+
+<section class="post-hero">
+    {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-hero-image">
+    {% endif %}
+    <div class="post-hero-overlay"></div>
+    <div class="container post-hero-content">
+        <nav class="post-breadcrumb">
+            <a href="{% url 'blog:home' %}">Home</a><span>›</span><a href="{% url 'blog:post_list' %}">Posts</a>
+            {% for category in post.categories.all|slice:":1" %}
+                <span>›</span><a href="{% url 'blog:category' category.slug %}">{{ category.name }}</a>
+            {% endfor %}
+        </nav>
+        <h1 class="post-hero-title pb-3 pt-1">{{ post.title }}</h1>
+        <div class="post-hero-meta">
+            <div class="hero-author pb-3">
+                <a href="{% url 'users:user_profile' post.author.username %}" style="text-decoration: none;">
+                    <div class="hero-avatar">
+                        {% if post.author.first_name and post.author.last_name %}
+                            {{ post.author.first_name.0|upper }}{{ post.author.last_name.0|upper }}
+                        {% else %}
+                            {{ post.author.username.0|upper }}
+                        {% endif %}
+                    </div>
+                </a>
+                <div>
+                    <a href="{% url 'users:user_profile' post.author.username %}" style="text-decoration: none; color: white;">
+                        <div style="font-weight: 600;">{{ post.author.get_full_name|default:post.author.username }}</div>
+                    </a>
+                    <div style="opacity: 0.8;">{{ post.published_date|date:"M d, Y" }}</div>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><i class="bi bi-clock"></i><span>{{ reading_time }} min</span></div>
+                <div class="hero-stat"><i class="bi bi-eye"></i><span>{{ post.views_count }}</span></div>
+                <div class="hero-stat"><i class="bi bi-heart"></i><span id="hero-likes">{{ likes_count }}</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <article class="post-content-card">
+                {% if post.categories.all %}
+                    <div class="post-categories">
+                        {% for category in post.categories.all %}
+                            <a href="{% url 'blog:category' category.slug %}" class="modern-category" style="background: {{ category.color|default:'linear-gradient(135deg, #6366f1, #ec4899)' }};">
+                                {% if category.icon %}<i class="bi bi-{{ category.icon }}"></i>{% endif %} {{ category.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="article-body" id="article-body-content">{{ post.body|replace_media_urls|safe }}</div>
+                {% if post.tags.all %}
+                    <div class="modern-tags">
+                        {% for tag in post.tags.all %}
+                            <a href="{% url 'blog:tag_posts' tag.slug %}" class="modern-tag">#{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="post-actions">
+                    {% if user.is_authenticated %}
+                        <button class="action-btn action-btn-primary {% if user_liked %}liked{% endif %}" id="like-button" data-post-id="{{ post.id }}">
+                            <i class="bi bi-heart{% if user_liked %}-fill{% endif %}"></i> 
+                            <span id="like-text">{% if user_liked %}Liked{% else %}Like{% endif %}</span> 
+                            (<span id="like-count">{{ likes_count }}</span>)
+                        </button>
+                    {% else %}
+                        <a href="{% url 'users:login' %}?next={{ request.path }}" class="action-btn action-btn-primary">
+                            <i class="bi bi-heart"></i><span>Like ({{ likes_count }})</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </article>
+
+           <!-- Replace the comment form section in your template -->
+<section class="comments-section" id="comments-section">
+    <div class="comments-header">
+        <h2 class="comments-title"><i class="bi bi-chat-dots-fill"></i> Discussion</h2>
+        <p style="color: var(--gray-600);">{{ comments|length }} comment{{ comments|length|pluralize }}</p>
+    </div>
+    
+    {% if user.is_authenticated %}
+        <form method="post" class="comment-form-modern" id="commentForm">
+            {% csrf_token %}
+            <div class="form-header-modern">
+                <div class="modern-avatar">
+                    {% if user.first_name and user.last_name %}
+                        {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                    {% else %}
+                        {{ user.username.0|upper }}
+                    {% endif %}
+                </div>
+                <div class="modern-user-info">
+                    <h4>{{ user.get_full_name|default:user.username }}</h4>
+                    <span>Share your thoughts</span>
+                </div>
+            </div>
+            <textarea name="body" id="comment-body" class="modern-textarea" placeholder="Write your comment..." required minlength="10"></textarea>
+            <div id="comment-error" style="color: var(--danger); font-size: 0.875rem; margin-top: 0.5rem; display: none;"></div>
+            <button type="submit" class="modern-btn" id="submit-comment-btn">
+                <i class="bi bi-send-fill"></i> Post Comment
+            </button>
+        </form>
+    {% else %}
+        <div class="auth-prompt-modern">
+            <div class="auth-icon-modern"><i class="bi bi-chat-dots-fill"></i></div>
+            <h3 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Join the Discussion</h3>
+            <p style="color: var(--gray-600); margin-bottom: 2rem;">Sign in to share your thoughts</p>
+            <a href="{% url 'users:login' %}?next={{ request.path }}" class="action-btn action-btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </a>
+        </div>
+    {% endif %}
+    
+    <div class="comments-list">
+        {% for comment in comments %}
+            <div class="modern-comment" data-comment-id="{{ comment.id }}">
+                <div class="comment-header-modern">
+                    <div class="modern-avatar">
+                        {% if comment.author.first_name and comment.author.last_name %}
+                            {{ comment.author.first_name.0|upper }}{{ comment.author.last_name.0|upper }}
+                        {% else %}
+                            {{ comment.author.username.0|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="comment-meta-modern">
+                        <div class="comment-author-modern">{{ comment.author.get_full_name|default:comment.author.username }}</div>
+                        <div class="comment-date-modern">{{ comment.published_date|timesince }} ago</div>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div class="comment-actions-modern">
+                            <button class="comment-action-btn" onclick="toggleReplyForm({{ comment.id }})">
+                                <i class="bi bi-reply-fill"></i> Reply
+                            </button>
+                            {% if user == comment.author %}
+                                <button class="comment-action-btn" onclick="editComment({{ comment.id }})">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="comment-action-btn delete" onclick="deleteComment({{ comment.id }})">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="comment-body-modern"><p>{{ comment.body|linebreaks }}</p></div>
+                
+                {% if comment.approved_replies.all %}
+                    <div class="comment-replies-modern">
+                        {% for reply in comment.approved_replies.all %}
+                            <div class="reply-modern" data-comment-id="{{ reply.id }}">
+                                <div class="comment-header-modern">
+                                    <div class="modern-avatar small">
+                                        {% if reply.author.first_name and reply.author.last_name %}
+                                            {{ reply.author.first_name.0|upper }}{{ reply.author.last_name.0|upper }}
+                                        {% else %}
+                                            {{ reply.author.username.0|upper }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment-meta-modern">
+                                        <div class="comment-author-modern">{{ reply.author.get_full_name|default:reply.author.username }}</div>
+                                        <div class="comment-date-modern">{{ reply.published_date|timesince }} ago</div>
+                                    </div>
+                                    {% if user.is_authenticated and user == reply.author %}
+                                        <div class="comment-actions-modern">
+                                            <button class="comment-action-btn" onclick="editComment({{ reply.id }})">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                            <button class="comment-action-btn delete" onclick="deleteComment({{ reply.id }})">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="comment-body-modern"><p>{{ reply.body|linebreaks }}</p></div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% if user.is_authenticated %}
+                    <div class="reply-form" id="replyForm{{ comment.id }}" style="display: none; margin-top: 1rem;">
+                        <div class="comment-form-modern" style="margin: 0;">
+                            <div class="form-header-modern">
+                                <div class="modern-avatar small">
+                                    {% if user.first_name and user.last_name %}
+                                        {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                                    {% else %}
+                                        {{ user.username.0|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="modern-user-info">
+                                    <h5 style="font-size: 0.875rem; margin: 0;">Reply to {{ comment.author.get_full_name|default:comment.author.username }}</h5>
+                                </div>
+                            </div>
+                            <textarea class="modern-textarea reply-textarea" placeholder="Write your reply..." style="min-height: 80px;"></textarea>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="modern-btn" onclick="submitReply({{ comment.id }})" style="padding: 0.625rem 1.5rem;">
+                                    <i class="bi bi-send-fill"></i> Reply
+                                </button>
+                                <button type="button" class="comment-action-btn" onclick="toggleReplyForm({{ comment.id }})" style="padding: 0.625rem 1rem;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="auth-prompt-modern">
+                <i class="bi bi-chat" style="font-size: 3rem; color: var(--gray-300); margin-bottom: 1rem;"></i>
+                <h4 style="color: var(--gray-600); margin-bottom: 0.5rem;">Start the Conversation</h4>
+                <p style="color: var(--gray-600);">Be the first to share your thoughts</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+        </div>
+
+        <aside class="col-lg-4">
+            <div class="modern-sidebar-card">
+                <h3 class="sidebar-title"><i class="bi bi-person-circle"></i> About Author</h3>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="modern-avatar" style="width: 64px; height: 64px; font-size: 1.5rem; border-radius: 16px;">
+                        {% if post.author.first_name and post.author.last_name %}
+                            {{ post.author.first_name.0|upper }}{{ post.author.last_name.0|upper }}
+                        {% else %}
+                            {{ post.author.username.0|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h5 style="margin: 0 0 0.25rem 0; font-weight: 600;">{{ post.author.get_full_name|default:post.author.username }}</h5>
+                        <small style="color: var(--gray-600);">Author</small>
+                    </div>
+                </div>
+                {% if user.is_authenticated and user != post.author %}
+                    <button class="action-btn action-btn-primary w-100 {% if is_following %}liked{% endif %}" data-author-id="{{ post.author.id }}" onclick="toggleFollow(this)" style="width: 100%; justify-content: center;">
+                        {% if is_following %}
+                            <i class="bi bi-person-dash-fill"></i> Unfollow
+                        {% else %}
+                            <i class="bi bi-person-plus-fill"></i> Follow
+                        {% endif %}
+                    </button>
+                {% endif %}
+            </div>
+
+            <div class="modern-sidebar-card">
+                <h3 class="sidebar-title"><i class="bi bi-robot"></i> AI Chat Assistant</h3>
+                <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: -1rem; margin-bottom: 1.5rem;">
+                    Have a question? Ask our AI assistant to find answers from anywhere in the article.
+                </p>
+                <button class="action-btn action-btn-primary" id="open-chat-modal-btn" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-chat-dots-fill"></i> Open Chat
+                </button>
+            </div>
+
+            <div class="modern-sidebar-card">
+                <h3 class="sidebar-title"><i class="bi bi-share-fill"></i> Share Post</h3>
+                {% with share_url=request.build_absolute_uri|urlencode share_text=post.title|urlencode %}
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                        <a href="https://twitter.com/intent/tweet?url={{ share_url }}&text={{ share_text }}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: #1DA1F2; color: white; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                            <i class="bi bi-twitter-x"></i> Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: #1877F2; color: white; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                            <i class="bi bi-facebook"></i> Facebook
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url }}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: #0A66C2; color: white; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                            <i class="bi bi-linkedin"></i> LinkedIn
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ share_text }}%20{{ share_url }}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: #25D366; color: white; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                    <button onclick="copyToClipboard(event, '{{ request.build_absolute_uri }}')" style="width: 100%; margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: var(--gray-100); color: var(--gray-700); border: none; border-radius: 12px; font-weight: 500; cursor: pointer;">
+                        <i class="bi bi-link-45deg"></i> Copy Link
+                    </button>
+                {% endwith %}
+            </div>
+
+            {% if post.categories.all %}
+                <div class="modern-sidebar-card">
+                    <h3 class="sidebar-title"><i class="bi bi-bookmark-fill"></i> Categories</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for category in post.categories.all %}
+                            <a href="{% url 'blog:category' category.slug %}" class="modern-category" style="background: {{ category.color|default:'linear-gradient(135deg, #6366f1, #ec4899)' }}; font-size: 0.875rem;">
+                                {% if category.icon %}<i class="bi bi-{{ category.icon }}"></i>{% endif %} {{ category.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="modern-sidebar-card">
+                <h3 class="sidebar-title"><i class="bi bi-list-ul"></i> Quick Stats</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
+                        <span style="color: var(--gray-600); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-clock-fill" style="color: var(--primary);"></i> Reading Time
+                        </span>
+                        <strong>{{ reading_time }} min</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
+                        <span style="color: var(--gray-600); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-eye-fill" style="color: var(--primary);"></i> Views
+                        </span>
+                        <strong>{{ post.views_count }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
+                        <span style="color: var(--gray-600); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-heart-fill" style="color: var(--primary);"></i> Likes
+                        </span>
+                        <strong id="sidebar-likes">{{ likes_count }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
+                        <span style="color: var(--gray-600); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-chat-fill" style="color: var(--primary);"></i> Comments
+                        </span>
+                        <strong>{{ comments|length }}</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- Chat Modal -->
+<div id="chat-modal-overlay"></div>
+<div id="chat-modal">
+    <div class="chat-modal-header">
+        <h3 class="chat-modal-title"><i class="bi bi-robot"></i> AI Chat Assistant</h3>
+        <button id="chat-modal-close-btn" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="chat-modal-body">
+        <div id="qa-chat-messages">
+            <div class="ai-message">
+                <div>Hello! Ask me anything about "{{ post.title }}". For example, "explain point by point" or "generate study questions".</div>
+            </div>
+        </div>
+        <div class="chat-modal-footer">
+            <form id="qa-chat-form" autocomplete="off">
+                <input type="text" id="qa-question-input" placeholder="Ask a question..." required>
+                <button type="submit" class="modern-btn"><i class="bi bi-send-fill"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load external JS file -->
+<script src="{% static 'blog/js/post-detail.js' %}"></script>
+
+<script>
+// Post data for JavaScript
+window.postData = {
+    id: '{{ post.id }}',
+    slug: '{{ post.slug }}',
+    title: '{{ post.title|escapejs }}',
+    authorId: {{ post.author.id }},
+    isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+    isLiked: {% if user_liked %}true{% else %}false{% endif %},
+    isFollowing: {% if is_following %}true{% else %}false{% endif %},
+    likesCount: {{ likes_count }},
+    csrfToken: '{{ csrf_token }}'
+};
+
+// Focus Reading Mode
+document.addEventListener('DOMContentLoaded', function() {
+    const focusBtn = document.getElementById('focus-mode-toggle');
+    const focusIcon = focusBtn ? focusBtn.querySelector('i') : null;
+    if (!focusBtn || !focusIcon) return;
+
+    // Check saved preference
+    const savedFocusMode = localStorage.getItem('focusMode') === 'true';
+    if (savedFocusMode) {
+        document.body.classList.add('focus-mode');
+        focusIcon.className = 'bi bi-x-lg';
+        focusBtn.title = 'Exit Focus Mode';
+    }
+
+    focusBtn.addEventListener('click', function() {
+        document.body.classList.toggle('focus-mode');
+        const isFocusMode = document.body.classList.contains('focus-mode');
+        if (isFocusMode) {
+            focusIcon.className = 'bi bi-x-lg';
+            focusBtn.title = 'Exit Focus Mode';
+            localStorage.setItem('focusMode', 'true');
+            const article = document.querySelector('.article-body');
+            if (article) {
+                article.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else {
+            focusIcon.className = 'bi bi-book';
+            focusBtn.title = 'Toggle Focus Reading Mode';
+            localStorage.setItem('focusMode', 'false');
+        }
+    });
+});
+
+// RAG AI Chat WebSocket
+document.addEventListener('DOMContentLoaded', function() {
+    const openChatBtn = document.getElementById('open-chat-modal-btn');
+    const chatModal = document.getElementById('chat-modal');
+    const chatOverlay = document.getElementById('chat-modal-overlay');
+    const closeChatBtn = document.getElementById('chat-modal-close-btn');
+    if (!openChatBtn || !chatModal || !chatOverlay || !closeChatBtn) return;
+
+    const messagesDiv = document.getElementById('qa-chat-messages');
+    const chatForm = document.getElementById('qa-chat-form');
+    const questionInput = document.getElementById('qa-question-input');
+    const postSlug = window.postData.slug;
+
+    const showChatModal = () => {
+        chatModal.classList.add('visible');
+        chatOverlay.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => questionInput.focus(), 300);
+    };
+
+    const hideChatModal = () => {
+        chatModal.classList.remove('visible');
+        chatOverlay.classList.remove('visible');
+        document.body.style.overflow = '';
+    };
+
+    openChatBtn.addEventListener('click', showChatModal);
+    closeChatBtn.addEventListener('click', hideChatModal);
+    chatOverlay.addEventListener('click', hideChatModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && chatModal.classList.contains('visible')) hideChatModal();
+    });
+
+    // WebSocket for RAG Chat
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/post/${postSlug}/chat/`);
+
+    chatSocket.onopen = () => console.log("RAG Chat WebSocket connected.");
+    chatSocket.onclose = () => {
+        console.error('RAG Chat WebSocket closed.');
+        addMessage('Connection lost. Please refresh to reconnect.', 'ai');
+        disableForm();
+    };
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'ai_message') {
+            addMessage(data.answer, 'ai');
+        } else if (data.type === 'error') {
+            addMessage(`Error: ${data.message}`, 'ai');
+        } else if (data.type === 'connection_established') {
+            addMessage(data.message, 'system');
+        }
+        enableForm();
+    };
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const question = questionInput.value.trim();
+        if (!question) return;
+        addMessage(question, 'user');
+        chatSocket.send(JSON.stringify({ 'question': question }));
+        questionInput.value = '';
+        disableForm();
+        addMessage("Thinking...", 'ai');
+    });
+
+    function addMessage(text, type) {
+        const typingIndicator = messagesDiv.querySelector('.typing');
+        if (typingIndicator) typingIndicator.remove();
+        const msgDiv = document.createElement('div');
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = text;
+        msgDiv.className = type === 'user' ? 'user-message' : 'ai-message';
+        if (text === "Thinking..." || type === 'system') msgDiv.classList.add('typing');
+        msgDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    const disableForm = () => {
+        questionInput.disabled = true;
+        chatForm.querySelector('button').disabled = true;
+    };
+
+    const enableForm = () => {
+        questionInput.disabled = false;
+        chatForm.querySelector('button').disabled = false;
+        questionInput.focus();
+    };
+});
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name|default:"MyBlog" }} - Login Notification</title>
+    <style>
+        /* Base styles for email client compatibility */
+        body { margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        td { padding: 0; }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f9fafb;">
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 48px 20px;"> 
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                    
+                    <!-- Header with Gradient Background (conditional color) -->
+                    <tr>
+                        {% if login_log.is_suspicious %}
+                        <td align="center" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 30px 20px; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 900; line-height: 1.2;">
+                                ⚠️ Security Alert: Suspicious Login
+                            </h1>
+                        </td>
+                        {% else %}
+                        <td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 900; line-height: 1.2;">
+                                ✓ Login Notification
+                            </h1>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    
+                    <!-- Content Card Body -->
+                    <tr>
+                        <td style="padding: 48px; text-align: left;">
+                            
+                            <!-- Icon -->
+                            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td style="font-size: 32px; line-height: 1;">
+                                        {% if login_log.is_suspicious %}
+                                        <span style="color: #ef4444;">&#x1F512;</span> <!-- Lock Icon -->
+                                        {% else %}
+                                        <span style="color: #10b981;">&#x2714;</span> <!-- Check Icon -->
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {% if login_log.is_suspicious %}
+                            <p style="color: #1f2937; margin: 0 0 15px 0; font-size: 20px; font-weight: 700; line-height: 1.4;">
+                                Action Required, {{ user.username }}!
+                            </p>
+                            
+                            <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 16px; line-height: 1.6; font-weight: 400;">
+                                We detected a <strong style="color: #ef4444;">suspicious sign-in</strong> to your {{ site_name|default:"MyBlog" }} account from a new device or location.
+                            </p>
+                            {% else %}
+                            <p style="color: #1f2937; margin: 0 0 15px 0; font-size: 20px; font-weight: 700; line-height: 1.4;">
+                                Hello, {{ user.username }}!
+                            </p>
+                            
+                            <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 16px; line-height: 1.6; font-weight: 400;">
+                                We detected a sign-in to your {{ site_name|default:"MyBlog" }} account from a recognized device.
+                            </p>
+                            {% endif %}
+
+                            <!-- Login Details Box -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; margin: 20px 0 30px 0;">
+                                <tr>
+                                    <td style="color: #1f2937; font-size: 16px; line-height: 1.6; font-weight: 600; padding-bottom: 5px;">
+                                        Device: <span style="font-weight: 400; color: #6b7280;">{{ login_log.user_agent|default:"Unknown Device" }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #1f2937; font-size: 16px; line-height: 1.6; font-weight: 600; padding-bottom: 5px;">
+                                        Location: <span style="font-weight: 400; color: #6b7280;">{{ login_log.location|default:"Unknown Location" }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #1f2937; font-size: 16px; line-height: 1.6; font-weight: 600;">
+                                        Time: <span style="font-weight: 400; color: #6b7280;">{{ login_log.login_time }} (UTC)</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {% if login_log.is_suspicious %}
+                            <p style="color: #ef4444; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; font-weight: 600;">
+                                ⚠️ If this was NOT you, click the button immediately to secure your account.
+                            </p>
+                            
+                            <!-- Security Action Button (only for suspicious logins) -->
+                            <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 30px auto; width: 100%; text-align: center;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ security_link|default:'#' }}" target="_blank"
+                                           style="display: inline-block; padding: 12px 20px; border-radius: 12px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px;
+                                                  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                            &nbsp;Secure My Account Now&nbsp;
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            {% else %}
+                            <p style="color: #10b981; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; font-weight: 600;">
+                                ✓ This login is from a recognized device/location.
+                            </p>
+                            {% endif %}
+
+                            <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.6; font-weight: 400;">
+                                {% if login_log.is_suspicious %}
+                                If you recognize the details above, you can safely ignore this email. However, we recommend reviewing your account security settings.
+                                {% else %}
+                                If you have any security concerns, please <a href="{{ security_link|default:'#' }}" style="color: #667eea; text-decoration: underline;">change your password</a> or contact our support team.
+                                {% endif %}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding: 20px 48px 48px; border-top: 1px solid #f3f4f6;">
+                            <p style="font-size: 14px; color: #6b7280; margin: 0; font-weight: 400;">
+                                The {{ site_name|default:"MyBlog" }} Team
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

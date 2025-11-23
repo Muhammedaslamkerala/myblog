@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - MyBlog{% endblock %}
+
+{% block meta_description1 %}Get in touch with MyBlog. Send us a message, ask questions, or provide feedback. We're here to help and listen.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="page-title" data-aos="fade-up">Contact Us</h1>
+                <p class="page-subtitle" data-aos="fade-up" data-aos-delay="100">
+                    We'd love to hear from you! Send us your questions, feedback, or inquiries.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-7" data-aos="fade-up">
+                <div class="contact-form-wrapper">
+                    <h2 class="section-title">Send a Message</h2>
+                    <p class="section-subtitle mb-4">Fill out the form below and we'll get back to you shortly.</p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="contact-form" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.first_name.label_tag }}
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name.label_tag }}
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.subject.label_tag }}
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="text-danger small">{{ form.subject.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                {{ form.message.label_tag }}
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                    <div class="text-danger small">{{ form.message.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 form-check">
+                                {{ form.subscribe_newsletter }}
+                                {{ form.subscribe_newsletter.label_tag }}
+                                {% if form.subscribe_newsletter.errors %}
+                                    <div class="text-danger small">{{ form.subscribe_newsletter.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-hero btn-lg mt-3">
+                                    <i class="bi bi-envelope me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-5" data-aos="fade-up" data-aos-delay="100">
+                <div class="contact-info-card">
+                    <div class="contact-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <h5>Address</h5>
+                    <p>123 MyBlog Street, City, Country</p>
+                </div>
+
+                <div class="contact-info-card mt-4">
+                    <div class="contact-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <h5>Email</h5>
+                    <p><a href="mailto:hello@myblog.com">hello@myblog.com</a></p>
+                </div>
+
+                <div class="contact-info-card mt-4">
+                    <div class="contact-icon">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+                    <h5>Phone</h5>
+                    <p><a href="tel:+1234567890">+1 234 567 890</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    }
+});
+</script>
+{% endblock %}

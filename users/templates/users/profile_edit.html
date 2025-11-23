@@ -1,0 +1,645 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---------------------------------- */
+/* Design System & Base               */
+/* ---------------------------------- */
+:root {
+    --primary: #667eea;
+    --primary-dark: #764ba2;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --neutral-100: #f9fafb;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-800: #1f2937;
+    --text-light: #6b7280;
+}
+
+body { 
+    background-color: var(--neutral-100); 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------------------------------- */
+/* Page Header                        */
+/* ---------------------------------- */
+.page-header {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 5rem 0 3rem;
+    margin-top: -70px;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    top: -250px;
+    right: -100px;
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    bottom: -150px;
+    left: -50px;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    padding-top: 70px;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: white;
+}
+
+.breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* ---------------------------------- */
+/* Edit Container & Cards             */
+/* ---------------------------------- */
+.edit-container {
+    padding: 3rem 0;
+}
+
+.edit-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--neutral-200);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.edit-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(to right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--neutral-800);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-title i {
+    color: var(--primary);
+    font-size: 1.3rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* ---------------------------------- */
+/* Avatar Section                     */
+/* ---------------------------------- */
+.avatar-section {
+    text-align: center;
+}
+
+.current-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 5px solid white;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+    position: relative;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+}
+
+.current-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+
+.file-input-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.file-input-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ---------------------------------- */
+/* Form Elements                      */
+/* ---------------------------------- */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-label i {
+    color: var(--primary);
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--neutral-800);
+}
+
+.form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-control::placeholder {
+    color: var(--neutral-400);
+}
+
+.form-control.is-invalid {
+    border-color: var(--error);
+}
+
+.invalid-feedback {
+    display: block;
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* ---------------------------------- */
+/* Alert Messages                     */
+/* ---------------------------------- */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    color: var(--success);
+    border-left: 4px solid var(--success);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+    color: var(--error);
+    border-left: 4px solid var(--error);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+    color: var(--warning);
+    border-left: 4px solid var(--warning);
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* ---------------------------------- */
+/* Form Actions                       */
+/* ---------------------------------- */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--neutral-200);
+}
+
+.btn {
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.btn i {
+    font-size: 1.1rem;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-outline-secondary {
+    border: 2px solid var(--neutral-200);
+    color: var(--neutral-700);
+    background: white;
+}
+
+.btn-outline-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-2px);
+}
+
+/* ---------------------------------- */
+/* Responsive                         */
+/* ---------------------------------- */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .edit-container {
+        padding: 2rem 0;
+    }
+    
+    .current-avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="header-content">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'blog:home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'users:user_profile' user.username %}">Profile</a></li>
+                    <li class="breadcrumb-item active">Edit Profile</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">
+                <i class="bi bi-pencil-square me-2"></i>Edit Profile
+            </h1>
+            <p class="page-subtitle">Update your profile information and settings</p>
+        </div>
+    </div>
+</section>
+
+<div class="edit-container">
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <!-- Profile Picture -->
+                    <div class="edit-card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="bi bi-image"></i>
+                                Profile Picture
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="avatar-section">
+                                <div class="current-avatar" id="avatarPreview">
+                                    {% if profile.profile_picture %}
+                                        <img src="{{ profile.profile_picture.url }}" alt="Profile">
+                                    {% else %}
+                                        {% if user.first_name and user.last_name %}
+                                            {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                                        {% else %}
+                                            {{ user.username.0|upper }}
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="file-input-wrapper">
+                                    {{ form.profile_picture }}
+                                    <label for="{{ form.profile_picture.id_for_label }}" class="file-input-label">
+                                        <i class="bi bi-camera-fill"></i>
+                                        <span>Choose Photo</span>
+                                    </label>
+                                </div>
+                                
+                                {% if form.profile_picture.errors %}
+                                    <div class="invalid-feedback">{{ form.profile_picture.errors.0 }}</div>
+                                {% else %}
+                                    <div class="help-text mt-2">JPG, PNG up to 5MB</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="edit-card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="bi bi-person-fill"></i>
+                                Basic Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                            <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                            <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+                                {% else %}
+                                    <div class="help-text">URL: mysite.com/@{{ form.username.value|default:'username' }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.bio.id_for_label }}">Bio</label>
+                                {{ form.bio }}
+                                {% if form.bio.errors %}
+                                    <div class="invalid-feedback">{{ form.bio.errors.0 }}</div>
+                                {% else %}
+                                    <div class="help-text">Tell visitors about yourself</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact & Social -->
+                    <div class="edit-card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="bi bi-share-fill"></i>
+                                Links & Social
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-globe me-1"></i> Website
+                                </label>
+                                {{ form.website }}
+                                {% if form.website.errors %}
+                                    <div class="invalid-feedback">{{ form.website.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-twitter me-1"></i> Twitter URL
+                                </label>
+                                {{ form.twitter_url }}
+                                {% if form.twitter_url.errors %}
+                                    <div class="invalid-feedback">{{ form.twitter_url.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-linkedin me-1"></i> LinkedIn URL
+                                </label>
+                                {{ form.linkedin_url }}
+                                {% if form.linkedin_url.errors %}
+                                    <div class="invalid-feedback">{{ form.linkedin_url.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-github me-1"></i> GitHub URL
+                                </label>
+                                {{ form.github_url }}
+                                {% if form.github_url.errors %}
+                                    <div class="invalid-feedback">{{ form.github_url.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <a href="{% url 'users:user_profile' user.username %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                            <span>Cancel</span>
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            <span>Save Changes</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const fileInput = document.querySelector('input[type="file"]');
+    const avatarPreview = document.getElementById('avatarPreview');
+    
+    if (fileInput && avatarPreview) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

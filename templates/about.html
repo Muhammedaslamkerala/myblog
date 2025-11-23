@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - MyBlog{% endblock %}
+
+{% block meta_description1 %}Learn about MyBlog - our mission, values, and the passionate team behind the platform that empowers writers and readers worldwide.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="page-title" data-aos="fade-up">About MyBlog</h1>
+                <p class="page-subtitle" data-aos="fade-up" data-aos-delay="100">
+                    Empowering writers and readers to share stories that matter
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-up">
+                <h2 class="section-title">Our Mission</h2>
+                <p class="lead mb-4">
+                    At MyBlog, we believe every story deserves to be heard. We're building a platform where writers can express themselves freely and readers can discover content that inspires, educates, and entertains.
+                </p>
+                <p>
+                    Founded in 2024, MyBlog has grown into a vibrant community of storytellers, journalists, poets, and passionate readers from around the world. Our mission is to democratize publishing and make quality content accessible to everyone.
+                </p>
+                <div class="stats-row mt-4">
+                    <div class="stat-item">
+                        <h3 class="stat-number">10K+</h3>
+                        <p class="stat-label">Active Writers</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3 class="stat-number">50K+</h3>
+                        <p class="stat-label">Stories Published</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3 class="stat-number">100K+</h3>
+                        <p class="stat-label">Monthly Readers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="about-visual">
+                    <div class="visual-card">
+                        <i class="bi bi-heart-fill"></i>
+                        <h4>Passion for Stories</h4>
+                        <p>Every story matters and deserves an audience</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="content-section bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Our Values</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                The principles that guide everything we do
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h4>Creativity</h4>
+                    <p>We celebrate unique voices and encourage creative expression in all its forms. Every writer brings something special to our community.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h4>Community</h4>
+                    <p>Building meaningful connections between writers and readers to foster discussions, feedback, and collaborative growth.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>Integrity</h4>
+                    <p>Maintaining the highest standards of quality, authenticity, and ethical publishing in everything we do.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-globe"></i>
+                    </div>
+                    <h4>Accessibility</h4>
+                    <p>Making quality content and publishing tools accessible to everyone, regardless of background or experience.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-rocket"></i>
+                    </div>
+                    <h4>Innovation</h4>
+                    <p>Continuously improving our platform with new features and technologies to enhance the writing experience.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-heart"></i>
+                    </div>
+                    <h4>Respect</h4>
+                    <p>Fostering a respectful, inclusive environment where all voices are welcomed and valued in our community.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Meet Our Team</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                The passionate people behind MyBlog
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                <div class="team-card">
+                    <div class="team-avatar">JS</div>
+                    <div class="team-info">
+                        <h5>John Smith</h5>
+                        <p class="team-role">Founder & CEO</p>
+                        <p class="team-bio">Passionate about empowering writers and building communities around storytelling. 10+ years in tech and content.</p>
+                        <div class="team-social">
+                            <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="team-card">
+                    <div class="team-avatar">EJ</div>
+                    <div class="team-info">
+                        <h5>Emily Johnson</h5>
+                        <p class="team-role">Head of Content</p>
+                        <p class="team-bio">Former journalist with 10+ years experience in digital publishing and content strategy. Loves great stories.</p>
+                        <div class="team-social">
+                            <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="team-card">
+                    <div class="team-avatar">MD</div>
+                    <div class="team-info">
+                        <h5>Michael Davis</h5>
+                        <p class="team-role">Lead Developer</p>
+                        <p class="team-bio">Full-stack developer dedicated to creating the best writing experience possible. Coding by day, writing by night.</p>
+                        <div class="team-social">
+                            <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="cta-title" data-aos="fade-up">Join Our Community</h2>
+                <p class="cta-subtitle" data-aos="fade-up" data-aos-delay="100">
+                    Ready to share your stories with thousands of readers? Join our growing community of writers and start your journey today.
+                </p>
+                <div class="cta-actions" data-aos="fade-up" data-aos-delay="200">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'blog:post_write' %}" class="btn btn-hero btn-lg me-3">
+                            <i class="bi bi-pen me-2"></i>Start Writing
+                        </a>
+                        <a href="{% url 'blog:dashboard' %}" class="btn btn-outline-hero btn-lg">
+                            <i class="bi bi-grid-1x2 me-2"></i>Go to Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'users:signup' %}" class="btn btn-hero btn-lg me-3">
+                            <i class="bi bi-person-plus me-2"></i>Join MyBlog
+                        </a>
+                        <a href="{% url 'blog:post_list' %}" class="btn btn-outline-hero btn-lg">
+                            <i class="bi bi-book me-2"></i>Explore Stories
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize AOS
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    }
+    
+    // Animate counters
+    const animateCounters = () => {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace(/[^0-9]/g, '')) || 0;
+            const increment = target / 50;
+            let current = 0;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    const value = Math.floor(current);
+                    if (value >= 1000) {
+                        counter.textContent = Math.floor(value / 1000) + 'K+';
+                    } else {
+                        counter.textContent = value + '+';
+                    }
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = counter.textContent;
+                }
+            };
+            
+            updateCounter();
+        });
+    };
+    
+    // Trigger counter animation when stats come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    const statsRow = document.querySelector('.stats-row');
+    if (statsRow) {
+        observer.observe(statsRow);
+    }
+});
+</script>
+{% endblock %}

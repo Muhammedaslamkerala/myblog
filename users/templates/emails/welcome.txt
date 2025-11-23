@@ -1,0 +1,13 @@
+Welcome to {{ site_name|default:"MyBlog" }}!
+
+Hi {{ user.username }},
+
+We're thrilled to have you join our community! Get started by exploring new posts, connecting with other users, and customizing your profile.
+
+Go to your Dashboard:
+{{ dashboard_link }}
+
+If you have any questions, don't hesitate to reply to this email.
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

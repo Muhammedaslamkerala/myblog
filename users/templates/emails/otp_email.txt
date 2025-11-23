@@ -1,0 +1,12 @@
+{{ site_name|default:"MyBlog" }} — Email Verification Code
+
+Hello {{ user.first_name|default:user.username }},
+
+Your verification code is: {{ otp }}
+
+This code will expire in 10 minutes.
+
+If you didn't request this code, please ignore this email.
+
+Best regards,
+The {{ site_name|default:"MyBlog" }} Team

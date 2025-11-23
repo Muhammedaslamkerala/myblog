@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Reading List - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+/* STYLES FOR READING LIST PAGE (UNIFIED WITH POST_LIST) */
+:root {
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --text-heading: #1f2937;
+    --text-body: #4b5563;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --background-light: #f9fafb;
+    --error: #ef4444; /* For notifications */
+    --success: #10b981;
+}
+body { background: var(--background-light); }
+
+/* Hero Header (Consistent with post_list.html) */
+.hero-header-posts { position: relative; background: var(--gradient-primary); padding: 120px 0 80px; color: white; overflow: hidden; margin-top: -70px; }
+.hero-gradient { position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%); }
+.header-content { position: relative; z-index: 2; }
+.breadcrumb-modern { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 14px; }
+.breadcrumb-item { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: all 0.3s ease; }
+.breadcrumb-item:hover { color: white; }
+.breadcrumb-item.active { color: white; font-weight: 600; }
+.title-section { text-align: center; max-width: 800px; margin: 0 auto; }
+.page-title-modern { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+.page-subtitle { font-size: 18px; color: rgba(255, 255, 255, 0.9); margin-bottom: 40px; }
+.stats-bar { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.stat-item-header { text-align: center; }
+.stat-value { display: block; font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+.stat-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* --- UNIFIED POST CARD STYLES --- */
+.posts-main { padding: 60px 0; }
+.posts-grid { display: grid; gap: 32px; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+
+.post-card {
+    background: white;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: visible; /* Changed for dropdown */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    position: relative; /* For action button positioning */
+}
+.post-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.post-card.is-active { z-index: 10; } /* Highlight card when menu is open */
+.card-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 16px 16px 0 0; }
+.card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.post-card:hover .card-image { transform: scale(1.05); }
+.card-media-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+.post-card:hover .card-media-overlay { opacity: 1; }
+.read-article-link { color: white; font-size: 16px; font-weight: 600; text-decoration: none; padding: 12px 24px; border: 2px solid white; border-radius: 50px; transform: translateY(10px); transition: all 0.3s ease; }
+.post-card:hover .read-article-link { transform: translateY(0); }
+.read-article-link:hover { background: white; color: var(--text-heading); }
+.card-content { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+.card-title-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+.card-title { font-size: 22px; font-weight: 700; line-height: 1.3; margin: 0; color: var(--text-heading); flex-grow: 1; }
+.card-title a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+.card-title a:hover { color: var(--primary); }
+.card-excerpt { color: var(--text-body); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+.card-meta-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: auto; }
+.author-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.author-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.author-avatar-initials { width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+.author-name { font-size: 14px; font-weight: 600; color: var(--text-body); }
+.post-date { font-size: 12px; color: var(--text-muted); }
+.card-stats { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-muted); }
+.stat-item { display: flex; align-items: center; gap: 5px; }
+.stat-count { font-weight: 600; }
+
+/* --- Action Menu Styles (from post-list.html) --- */
+.actions-container { position: relative; }
+.card-actions-trigger { width: 36px; height: 36px; border-radius: 10px; background: #f3f4f6; border: none; display: flex; align-items: center; justify-content: center; color: #718096; font-size: 16px; transition: all 0.3s ease; flex-shrink: 0; cursor: pointer; }
+.card-actions-trigger:hover { background: #e5e7eb; color: var(--text-heading); }
+.actions-card, .share-card { position: absolute; top: 0; right: calc(100% + 10px); /* Position left of trigger */ width: 220px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); padding: 8px; z-index: 100; opacity: 0; visibility: hidden; transform: translateX(10px) scale(0.95); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease; }
+.actions-card.show, .share-card.show { opacity: 1; visibility: visible; transform: translateX(0) scale(1); }
+.share-card { left: calc(100% + 8px); right: auto; } /* Share card opens to the right of main card */
+.action-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 10px; margin: 2px 0; font-weight: 500; color: var(--text-body); text-decoration: none; cursor: pointer; transition: all 0.2s ease; }
+.action-item:hover { background: rgba(102, 126, 234, 0.1); color: var(--primary); }
+.action-item.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+.action-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+.share-trigger::after { display: inline-block; content: ""; border-top: 0.3em solid transparent; border-right: 0; border-bottom: 0.3em solid transparent; border-left: 0.3em solid; vertical-align: middle; margin-left: auto; }
+
+/* Empty State Styles */
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 32px; background: white; border-radius: 24px; border: 1px solid var(--border-color); }
+.empty-illustration { width: 80px; height: 80px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: #9ca3af; font-size: 32px; }
+.empty-title { font-size: 24px; font-weight: 700; color: var(--text-heading); margin-bottom: 12px; }
+.empty-description { color: var(--text-body); line-height: 1.6; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .posts-grid { grid-template-columns: 1fr; }
+    .actions-card, .share-card { right: 0; left: auto; transform: translateX(0) scale(0.95); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="hero-header-posts">
+    <div class="hero-gradient"></div>
+    <div class="container">
+        <div class="header-content">
+            <nav class="breadcrumb-modern">
+                <a href="{% url 'blog:home' %}" class="breadcrumb-item"><i class="bi bi-house-door"></i> Home</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item active">My Reading List</span>
+            </nav>
+            <div class="title-section">
+                <h1 class="page-title-modern">My Reading List</h1>
+                <p class="page-subtitle">Your personal collection of saved articles. Never lose a great read again.</p>
+                <div class="stats-bar">
+                    <div class="stat-item-header">
+                        <span class="stat-value" id="bookmark-count">{{ bookmarks.count }}</span>
+                        <span class="stat-label">Saved Articles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="posts-main">
+    <div class="container">
+        {% if bookmarks %}
+        <div class="posts-grid">
+            {% for bookmark in bookmarks %}
+            <article class="post-card" data-post-id="{{ bookmark.post.id }}">
+                <a href="{{ bookmark.post.get_absolute_url }}" class="card-media">
+                    {% if bookmark.post.featured_image %}
+                        <img src="{{ bookmark.post.featured_image.url }}" alt="{{ bookmark.post.title }}" class="card-image">
+                    {% else %}
+                        <div class="card-image" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+                    {% endif %}
+                    <div class="card-media-overlay">
+                        <span class="read-article-link">Read Article</span>
+                    </div>
+                </a>
+                <div class="card-content">
+                    <div class="card-title-header">
+                        <h2 class="card-title"><a href="{{ bookmark.post.get_absolute_url }}">{{ bookmark.post.title }}</a></h2>
+                        <div class="actions-container">
+                            <button class="card-actions-trigger" onclick="toggleActionsCard(event)" title="More options"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="actions-card">
+                                <!-- Remove from Reading List -->
+                                <a class="action-item delete" href="javascript:void(0);" onclick="removeBookmark('{{ bookmark.post.id }}', this)">
+                                    <i class="bi bi-bookmark-x-fill"></i><span>Remove</span>
+                                </a>
+                                <div class="action-divider"></div>
+
+                                <!-- Share Menu Trigger -->
+                                <div class="action-item share-trigger" onclick="toggleShareCard(event)">
+                                    <i class="bi bi-share-fill"></i><span>Share</span>
+                                </div>
+                                
+                                <!-- Nested Share Card -->
+                                <div class="share-card">
+                                    <a class="action-item" href="#" onclick="copyUrl('{{ request.build_absolute_uri }}{{ bookmark.post.get_absolute_url }}', event)"><i class="bi bi-clipboard"></i> Copy URL</a>
+                                    <div class="action-divider"></div>
+                                    <a class="action-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{{ bookmark.post.get_absolute_url }}" target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                                    <a class="action-item" href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{{ bookmark.post.get_absolute_url }}&text={{ bookmark.post.title|urlencode }}" target="_blank"><i class="bi bi-twitter-x"></i> Twitter</a>
+                                    <a class="action-item" href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}{{ bookmark.post.get_absolute_url }}&title={{ bookmark.post.title|urlencode }}" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                    <a class="action-item" href="https://api.whatsapp.com/send?text={{ bookmark.post.title|urlencode }}%20{{ request.build_absolute_uri }}{{ bookmark.post.get_absolute_url }}" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="card-excerpt">{{ bookmark.post.excerpt|truncatechars:120 }}</p>
+                    <div class="card-meta-bar">
+                        <a href="#" class="author-info">
+                            {% if bookmark.post.author.profile.avatar %}
+                                <img src="{{ bookmark.post.author.profile.avatar.url }}" alt="{{ bookmark.post.author.get_full_name }}" class="author-avatar">
+                            {% else %}
+                                <div class="author-avatar-initials">
+                                    {% if bookmark.post.author.first_name and bookmark.post.author.last_name %}{{ bookmark.post.author.first_name.0|upper }}{{ bookmark.post.author.last_name.0|upper }}{% else %}{{ bookmark.post.author.username.0|upper }}{% endif %}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <span class="author-name">{{ bookmark.post.author.get_full_name|default:bookmark.post.author.username }}</span>
+                                <div class="post-date">{{ bookmark.post.published_date|date:"M d, Y" }}</div>
+                            </div>
+                        </a>
+                        <div class="card-stats">
+                            <span class="stat-item" title="Views"><i class="bi bi-eye-fill"></i><span class="stat-count">{{ bookmark.post.views_count|default:0 }}</span></span>
+                            <span class="stat-item" title="Likes"><i class="bi bi-heart-fill"></i><span class="stat-count">{{ bookmark.post.likes_count|default:0 }}</span></span>
+                            <span class="stat-item" title="Comments"><i class="bi bi-chat-fill"></i><span class="stat-count">{{ bookmark.post.comments.count|default:0 }}</span></span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="posts-grid">
+            <div class="empty-state">
+                <div class="empty-illustration"><i class="bi bi-bookmark-heart"></i></div>
+                <h3 class="empty-title">Your Reading List is Empty</h3>
+                <p class="empty-description">You haven't saved any articles yet. When you find an article you want to read later, look for the bookmark icon in the menu on any post card.</p>
+                <div class="empty-actions">
+                    <a href="{% url 'blog:post_list' %}" class="btn btn-primary" style="background: var(--gradient-primary); border: none; padding: 14px 32px; border-radius: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;"><i class="bi bi-search"></i> Explore Articles</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// --- CSRF Token for AJAX requests ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+
+// --- Actions Card Menu Logic ---
+function toggleActionsCard(event) {
+    event.stopPropagation();
+    const trigger = event.currentTarget;
+    const actionsCard = trigger.nextElementSibling;
+    const parentCard = trigger.closest('.post-card');
+
+    document.querySelectorAll('.actions-card.show').forEach(openCard => {
+        if (openCard !== actionsCard) {
+            openCard.classList.remove('show');
+            const openShareCard = openCard.querySelector('.share-card');
+            if (openShareCard) openShareCard.classList.remove('show');
+            openCard.closest('.post-card').classList.remove('is-active');
+        }
+    });
+
+    actionsCard.classList.toggle('show');
+    parentCard.classList.toggle('is-active', actionsCard.classList.contains('show'));
+
+    if (!actionsCard.classList.contains('show')) {
+        const shareCard = actionsCard.querySelector('.share-card');
+        if (shareCard) shareCard.classList.remove('show');
+    }
+}
+
+function toggleShareCard(event) {
+    event.stopPropagation();
+    const shareTrigger = event.currentTarget;
+    const shareCard = shareTrigger.parentElement.querySelector('.share-card');
+    if (shareCard) {
+        shareCard.classList.toggle('show');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const openActionsCard = document.querySelector('.actions-card.show');
+    if (openActionsCard && !openActionsCard.contains(event.target) && !event.target.closest('.card-actions-trigger')) {
+        openActionsCard.classList.remove('show');
+        const openShareCard = openActionsCard.querySelector('.share-card');
+        if (openShareCard) openShareCard.classList.remove('show');
+        openActionsCard.closest('.post-card').classList.remove('is-active');
+    }
+});
+
+
+// --- Remove Bookmark Logic ---
+async function removeBookmark(postId, button) {
+    if (!confirm('Remove this article from your reading list?')) { return; }
+    
+    const card = button.closest('.post-card');
+    
+    try {
+        const response = await fetch('{% url "blog:bookmark_toggle" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrftoken },
+            body: 'post_id=' + postId
+        });
+        
+        if (!response.ok) { throw new Error('Network response was not ok'); }
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                card.remove();
+                const remainingCards = document.querySelectorAll('.post-card').length;
+                const countElement = document.getElementById('bookmark-count');
+                countElement.textContent = remainingCards;
+                
+                if (remainingCards === 0) {
+                    location.reload(); // Reload to show the empty state message
+                }
+                showNotification('Removed from reading list', 'success');
+            }, 300);
+        } else {
+            showNotification(data.message || 'Failed to remove bookmark', 'error');
+        }
+    } catch (error) {
+        console.error('Error removing bookmark:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    }
+}
+
+
+// --- Utility & Notification Functions ---
+function copyUrl(url, event) {
+    event.preventDefault();
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        showNotification('Failed to copy link.', 'error');
+    });
+}
+
+function showNotification(message, type = 'success') {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+    const notification = document.createElement('div');
+    notification.className = 'toast-notification';
+    notification.style.cssText = `position: fixed; top: 100px; right: 2rem; padding: 1rem 1.5rem; background: ${type === 'success' ? 'var(--success)' : 'var(--error)'}; color: white; border-radius: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9999; display: flex; align-items: center; gap: 0.75rem; animation: slideInRight 0.3s ease;`;
+    notification.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}" style="font-size: 1.25rem;"></i><span>${message}</span>`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add animation keyframes for notifications
+const style = document.createElement('style');
+style.textContent = `@keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } } @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(110%); } }`;
+document.head.appendChild(style);
+
+
+// --- Entrance Animations for Post Cards ---
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.post-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,785 @@
+<!-- base.html (assuming you have a base template with head, body, etc.) -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Email - MyBlog{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block extra_css %}
+<style>
+/* --- MyBlog Design System Variables --- */
+:root {
+    --primary-color: #667eea;
+    --primary-dark-color: #764ba2;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+    --neutral-50: #f9fafb;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-500: #6b7280; /* Body text color */
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-800: #1f2937; /* Heading text color */
+}
+
+html { scroll-behavior: smooth; }
+
+body.auth-page {
+    background: var(--gradient-primary); /* Use the defined primary gradient */
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden; /* Prevent scrollbar from animated elements */
+    overflow-y: auto; /* Allow scrolling for content */
+    height: 100vh;
+    background-attachment: fixed;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Animated Background Shapes (Optional but adds nice flair) */
+body.auth-page::before, body.auth-page::after {
+    content: '';
+    position: absolute;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 20s ease-in-out infinite;
+    z-index: 0;
+}
+body.auth-page::before {
+    width: 600px; height: 600px;
+    top: -150px; left: -150px;
+}
+body.auth-page::after {
+    width: 500px; height: 500px;
+    bottom: -100px; right: -100px;
+    animation-duration: 15s;
+    animation-delay: -5s;
+    animation-direction: reverse;
+}
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    33% { transform: translate(50px, -40px) rotate(8deg); opacity: 0.8; }
+    66% { transform: translate(-30px, 30px) rotate(-6deg); opacity: 0.9; }
+}
+
+.verify-container {
+    padding: 3rem 0; /* Section padding: 3rem vertical */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1; /* Ensure card is above animated background */
+}
+
+.verify-card {
+    background: white;
+    border-radius: 20px; /* Card radius */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Card shadow */
+    padding: 3rem; /* Adjusted padding */
+    max-width: 500px; /* Max-width container */
+    margin: 0 auto;
+    animation: slideUp 0.6s ease-out;
+    border: 1px solid var(--neutral-200); /* Subtle border */
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.verify-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.email-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.email-icon {
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-primary); /* Use primary gradient for icon */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5); }
+}
+
+.verification-badge {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 32px;
+    height: 32px;
+    background: var(--success-color);
+    border-radius: 50%;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    animation: pop 0.5s ease-out 0.3s both;
+}
+
+@keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.verify-title {
+    font-size: 2rem;
+    font-weight: 800; /* Headings: 700-900 weight */
+    color: var(--neutral-800); /* Heading color */
+    margin-bottom: 0.75rem;
+}
+
+.verify-subtitle {
+    color: var(--neutral-500); /* Body text color */
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+    font-weight: 500; /* Body: 400-600 weight */
+}
+
+.email-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--neutral-100); /* Light neutral background */
+    color: var(--neutral-700);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.email-display i {
+    color: var(--primary-color); /* Primary color for emphasis */
+}
+
+/* OTP Input Section */
+.otp-section {
+    margin: 2.5rem 0;
+}
+
+.otp-label {
+    display: block;
+    font-weight: 700;
+    color: var(--neutral-700);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.otp-input-single {
+    width: 100%;
+    padding: 1rem 1.25rem; /* Adjusted padding */
+    border: 2px solid var(--neutral-200); /* 2px border #e5e7eb */
+    border-radius: 12px; /* 12px radius */
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.75rem; /* Tighter letter-spacing for better appearance */
+    background: var(--neutral-50);
+    transition: all 0.3s ease; /* Animations: 0.3s ease transitions */
+    color: var(--neutral-800);
+    caret-color: var(--primary-color); /* Primary color for caret */
+}
+
+.otp-input-single:focus {
+    outline: none;
+    border-color: var(--primary-color); /* Focus: primary color */
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2); /* Softer focus shadow */
+    transform: translateY(-2px); /* Hover lift effect on focus */
+}
+
+.otp-input-single::placeholder {
+    color: var(--neutral-300);
+}
+
+.otp-helper {
+    text-align: center;
+    color: var(--neutral-500);
+    font-size: 0.875rem;
+    margin-top: 0.75rem;
+    font-weight: 400;
+}
+
+/* Verify Button */
+.btn-verify {
+    background: var(--gradient-primary); /* Buttons: Gradient primary */
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem; /* Buttons: 0.75rem padding */
+    border-radius: 12px; /* Buttons: 12px radius */
+    font-weight: 700;
+    font-size: 1rem;
+    width: 100%;
+    transition: all 0.3s ease; /* Animations: 0.3s ease transitions */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3); /* Softer shadow */
+    margin-bottom: 1rem;
+}
+
+.btn-verify:hover:not(:disabled) {
+    transform: translateY(-3px); /* Hover lift effect */
+    box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-verify:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-verify i {
+    font-size: 1.1rem; /* Adjust icon size */
+}
+
+/* Resend Button */
+.btn-resend {
+    background: var(--neutral-100); /* Light neutral background */
+    border: 2px solid var(--neutral-200); /* Similar to input border */
+    color: var(--neutral-700);
+    padding: 0.75rem 1.5rem; /* Buttons: 0.75rem padding */
+    border-radius: 12px; /* Buttons: 12px radius */
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease; /* Animations: 0.3s ease transitions */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-resend:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.08); /* Light primary tint on hover */
+    transform: translateY(-2px); /* Hover lift effect */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Subtle shadow on hover */
+}
+
+.btn-resend:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-resend.success {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: rgba(16, 185, 129, 0.1); /* Light success tint */
+}
+
+/* Timer */
+.timer-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--neutral-200); /* Dashed border for separation */
+}
+
+.timer-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--neutral-100); /* Light neutral background */
+    color: var(--warning-color); /* Warning color for timer */
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3); /* Subtle warning border */
+    transition: all 0.3s ease;
+}
+
+.timer-display i {
+    font-size: 1.1rem;
+    color: var(--warning-color);
+}
+
+.timer-expired {
+    background: var(--neutral-100);
+    color: var(--error-color);
+    border-color: rgba(239, 68, 68, 0.3);
+    animation: shake 0.3s ease-in-out; /* Add a subtle shake for expired */
+}
+
+.timer-expired i {
+    color: var(--error-color);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Info Box */
+.info-box {
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.info-title {
+    color: var(--neutral-700);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.info-title i {
+    color: var(--primary-color); /* Primary color for emphasis */
+    font-size: 1.2rem;
+}
+
+.info-list {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: var(--neutral-600);
+    list-style-type: '👉 '; /* Custom bullet point for fun */
+    font-weight: 400;
+}
+
+.info-list li {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    padding-left: 0.5rem; /* Align text with custom bullet */
+}
+
+/* Success State */
+.success-state {
+    text-align: center;
+    animation: slideUp 0.6s ease-out;
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-primary); /* Primary gradient for success */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: white;
+    font-size: 3.5rem;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    animation: successPop 0.6s ease-out;
+}
+
+@keyframes successPop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.success-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--neutral-800);
+    margin-bottom: 1rem;
+}
+
+.success-message {
+    color: var(--neutral-500);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.btn-continue {
+    background: var(--success-color); /* Use direct success color */
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem; /* Buttons: 0.75rem padding */
+    border-radius: 12px; /* Buttons: 12px radius */
+    font-weight: 700;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-continue:hover {
+    transform: translateY(-3px); /* Hover lift effect */
+    box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
+    color: white;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 12px;
+    border: 1px solid; /* Solid border for alerts */
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1); /* Light error tint */
+    color: var(--error-color);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1); /* Light success tint */
+    color: var(--success-color);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.alert i {
+    font-size: 1.25rem;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1.1rem; /* Slightly smaller */
+    height: 1.1rem;
+    border-width: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .verify-card {
+        margin: 1rem;
+        padding: 2.5rem 1.5rem;
+    }
+    .verify-title {
+        font-size: 1.75rem;
+    }
+    .email-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+    }
+    .email-display {
+        font-size: 0.875rem;
+        padding: 0.625rem 0.8rem;
+    }
+    .otp-input-single {
+        font-size: 1.75rem;
+        letter-spacing: 0.5rem;
+        padding: 0.8rem 1rem;
+    }
+    .btn-verify, .btn-resend, .btn-continue {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .otp-input-single {
+        letter-spacing: 0.3rem; /* Further reduce for smaller screens */
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verify-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="verify-card">
+                    {% if verified %}
+                        <!-- Success State -->
+                        <div class="success-state">
+                            <div class="success-icon">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <h2 class="success-title">Email Verified!</h2>
+                            <p class="success-message">
+                                Your email has been successfully verified. You can now access all features of MyBlog.
+                            </p>
+                            <a href="{% url 'blog:home' %}" class="btn-continue">
+                                <i class="bi bi-house-door"></i>
+                                <span>Go to Homepage</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <!-- Verification Form -->
+                        <div class="verify-header">
+                            <div class="email-icon-wrapper">
+                                <div class="email-icon">
+                                    <i class="bi bi-envelope-check"></i>
+                                </div>
+                                <div class="verification-badge">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                            </div>
+                            <h1 class="verify-title">Verify Your Email</h1>
+                            <p class="verify-subtitle">
+                                We've sent a 6-digit verification code to
+                            </p>
+                            <div class="email-display">
+                                <i class="bi bi-envelope-at"></i>
+                                <span>{{ email }}</span>
+                            </div>
+                        </div>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <i class="bi bi-{% if message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" id="verifyForm">
+                            {% csrf_token %}
+                            
+                            <div class="otp-section">
+                                <label for="otp" class="otp-label">Enter Verification Code</label>
+                                
+                                <input 
+                                    type="text" 
+                                    class="otp-input-single" 
+                                    id="otp" 
+                                    name="otp" 
+                                    maxlength="6" 
+                                    pattern="[0-9]{6}" 
+                                    placeholder="&#x25CB;&#x25CB;&#x25CB;&#x25CB;&#x25CB;&#x25CB;"
+                                    inputmode="numeric"
+                                    required
+                                    autofocus
+                                    autocomplete="off"
+                                >
+                                
+                                <div class="otp-helper">
+                                    Enter the 6-digit code sent to your email
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-verify" id="verifyBtn">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Verify Email</span>
+                            </button>
+                        </form>
+
+                        <form method="post" action="{% url 'users:resend_otp' %}" id="resendForm">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-resend" id="resendBtn">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                <span>Resend Code</span>
+                            </button>
+                        </form>
+
+                        <div class="timer-section">
+                            <div class="timer-display" id="timerDisplay">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Code expires in <strong id="timer">10:00</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-title">
+                                <i class="bi bi-info-circle"></i>
+                                Didn't receive the code?
+                            </div>
+                            <ul class="info-list">
+                                <li>Check your spam or junk folder</li>
+                                <li>Make sure you entered the correct email address</li>
+                                <li>Click "Resend Code" to get a new verification code</li>
+                                <li>Contact support if you continue having issues</li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInput = document.getElementById('otp');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    const verifyForm = document.getElementById('verifyForm');
+    const resendForm = document.getElementById('resendForm');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerElement = document.getElementById('timer');
+    const successState = document.querySelector('.success-state');
+    
+    // Auto-format OTP input (numbers only)
+    if (otpInput) {
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Prevent non-numeric input
+        otpInput.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete') {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Form submission with loading state
+    if (verifyForm && verifyBtn) {
+        verifyForm.addEventListener('submit', function(e) {
+            const otp = otpInput.value;
+            
+            if (otp.length !== 6) {
+                e.preventDefault();
+                // A more user-friendly alert could be implemented here (e.g., a temporary message on the page)
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+            
+            // Show loading state
+            verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span>Verifying...</span>';
+            verifyBtn.disabled = true;
+        });
+    }
+    
+    // Resend OTP with cooldown
+    let resendCooldown = false;
+    let cooldownInterval; // Define interval outside for wider scope
+
+    function startResendCooldown(initialTime = 60) {
+        if (resendCooldown) return; // Prevent multiple cooldowns
+        
+        resendCooldown = true;
+        let cooldownTime = initialTime;
+        
+        resendBtn.disabled = true; // Disable button immediately
+
+        resendBtn.innerHTML = `<i class="bi bi-clock"></i><span>Resend in ${cooldownTime}s</span>`;
+        resendBtn.classList.add('disabled-cooldown'); // Add a class for styling disabled state
+
+        cooldownInterval = setInterval(() => {
+            cooldownTime--;
+            resendBtn.innerHTML = `<i class="bi bi-clock"></i><span>Resend in ${cooldownTime}s</span>`;
+            
+            if (cooldownTime <= 0) {
+                clearInterval(cooldownInterval);
+                resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i><span>Resend Code</span>';
+                resendBtn.disabled = false;
+                resendCooldown = false;
+                resendBtn.classList.remove('disabled-cooldown');
+            }
+        }, 1000);
+    }
+
+    if (resendForm && resendBtn) {
+        // Initial check for any existing cooldown (e.g., if page was refreshed during cooldown)
+        // This would require server-side tracking of cooldown, so for client-side, we start fresh.
+        // For a full production app, you'd fetch cooldown status from the server.
+        // For this example, we'll assume no active cooldown on page load unless initiated.
+        
+        resendForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission to handle cooldown manually
+            if (resendCooldown) {
+                return;
+            }
+            
+            // Show loading state for initial send
+            resendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span>Sending...</span>';
+            resendBtn.disabled = true;
+
+            // Simulate API call for resend
+            setTimeout(() => {
+                // After successful "resend" (simulated), start the cooldown
+                startResendCooldown(60); // 60 seconds cooldown
+                // Optionally show a success message here that the code has been resent
+            }, 1000); // Simulate 1 second API call
+        });
+    }
+    
+    // Countdown timer (10 minutes = 600 seconds)
+    if (timerElement && timerDisplay) {
+        let timeLeft = 600; // 10 minutes in seconds
+        
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.classList.add('timer-expired');
+                timerDisplay.innerHTML = '<i class="bi bi-exclamation-triangle"></i><span>Code expired - Please resend</span>';
+                
+                if (verifyBtn) {
+                    verifyBtn.disabled = true;
+                    verifyBtn.innerHTML = '<i class="bi bi-x-circle"></i><span>Code Expired</span>';
+                }
+                // Also disable OTP input if code is expired
+                if (otpInput) {
+                    otpInput.disabled = true;
+                    otpInput.value = ''; // Clear input
+                    otpInput.placeholder = 'Expired';
+                }
+            } else if (timeLeft <= 60 && !timerDisplay.classList.contains('timer-warning')) {
+                // Add a warning state class when less than 1 minute, only once
+                timerDisplay.classList.add('timer-warning');
+            }
+        }, 1000);
+    }
+    
+    // Auto-focus OTP input on load
+    if (otpInput) {
+        otpInput.focus();
+    }
+
+    // Scroll to top if success state is active (for better UX, especially on mobile)
+    if (successState) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
+</script>
+{% endblock %}

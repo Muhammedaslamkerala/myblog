@@ -1,0 +1,105 @@
+<article class="post-card status-{{ status }}">
+    <!-- Card Media Section -->
+    <a href="{% if status == 'published' %}{{ post.get_absolute_url }}{% else %}{% url 'blog:post_edit' post.slug %}{% endif %}" class="card-media" {% if status == 'published' %}target="_blank"{% endif %}>
+        {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title|default:'Post image' }}" class="card-image {% if status != 'published' %}draft-image{% endif %}" loading="lazy">
+        {% else %}
+            <div class="card-image {% if status != 'published' %}draft-image{% endif %}" style="background: linear-gradient(45deg, #e2e8f0, #f7fafc);"></div>
+        {% endif %}
+
+        <div class="status-badge-overlay">
+            {% if status == 'published' %}
+                <div class="status-badge published-badge"><i class="bi bi-check-circle-fill"></i><span>Published</span></div>
+            {% elif status == 'draft' %}
+                <div class="status-badge draft-badge"><i class="bi bi-pencil-square"></i><span>Draft</span></div>
+            {% elif status == 'private' %}
+                <div class="status-badge private-badge"><i class="bi bi-shield-lock-fill"></i><span>Private</span></div>
+            {% endif %}
+        </div>
+        
+        {% if post.categories.first %}
+            <div class="card-category-badge" style="color: {{ post.categories.first.color|default:'var(--primary)' }};">
+                {{ post.categories.first.name }}
+            </div>
+        {% endif %}
+        
+        <div class="card-media-overlay">
+            {% if status == 'published' %}
+                <span class="overlay-link read-link"><i class="bi bi-book-fill"></i> Read Article</span>
+            {% else %}
+                 <span class="overlay-link edit-link"><i class="bi bi-pencil-fill"></i> Continue Editing</span>
+            {% endif %}
+        </div>
+    </a>
+
+    <!-- Card Content Section -->
+    <div class="card-content">
+        {% if status != 'published' %}
+        <div class="last-modified">
+            <i class="bi bi-clock-history"></i>
+            <span>Updated {{ post.updated_at|timesince }} ago</span>
+        </div>
+        {% endif %}
+
+        <div class="card-title-header">
+            <h2 class="card-title">
+                <a href="{% if status == 'published' %}{{ post.get_absolute_url }}{% else %}{% url 'blog:post_edit' post.slug %}{% endif %}" class="{% if status != 'published' %}draft-title{% endif %}" {% if status == 'published' %}target="_blank"{% endif %}>
+                    {{ post.title|default:"Untitled Post" }}
+                </a>
+            </h2>
+            <div class="dropdown card-actions-menu">
+                <button class="card-actions-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More options">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
+                    <li><a class="dropdown-item" href="{% url 'blog:post_edit' post.slug %}"><i class="bi bi-pencil-fill"></i><span>Edit</span></a></li>
+                    {% if status == 'published' or status == 'private' %}
+                        <li><a class="dropdown-item" href="{{ post.get_absolute_url }}" target="_blank"><i class="bi bi-eye"></i><span>View Post</span></a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item delete" href="#" onclick="confirmDelete(event, '{{ post.title|escapejs|default:'this post' }}', {{ post.id }})">
+                            <i class="bi bi-trash-fill"></i><span>Delete</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <p class="card-excerpt {% if not post.excerpt %}no-excerpt{% endif %}">
+            {{ post.excerpt|truncatechars:120|default:"No description yet. Add one to help organize your posts." }}
+        </p>
+
+        <div class="card-meta-bar">
+            {% if status == 'published' %}
+                <a href="#" class="author-info">
+                    {% if request.user.profile.avatar %}
+                        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name }}" class="author-avatar">
+                    {% else %}
+                        <div class="author-avatar-initials">{{ request.user.first_name.0|upper }}{{ request.user.last_name.0|upper|default:request.user.username.0|upper }}</div>
+                    {% endif %}
+                    <div class="author-name-stack">
+                        <span class="author-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                        <span class="post-date">{{ post.published_date|date:"M d, Y" }}</span>
+                    </div>
+                </a>
+                <div class="card-stats">
+                    <span class="stat-item" title="{{ post.views_count|default:0 }} Views"><i class="bi bi-eye-fill"></i><span class="stat-count">{{ post.views_count|default:0 }}</span></span>
+                    <span class="stat-item" title="{{ post.likes_count|default:0 }} Likes"><i class="bi bi-heart-fill"></i><span class="stat-count">{{ post.likes_count|default:0 }}</span></span>
+                </div>
+            {% else %}
+                 <!-- Meta info for Draft/Private posts -->
+                <div class="card-stats">
+                    <div class="stat-item"><i class="bi bi-calendar-plus"></i><span class="stat-count">{{ post.created_at|date:"M d" }}</span></div>
+                    {% if post.tags.count > 0 %}
+                    <div class="stat-item"><i class="bi bi-tags-fill"></i><span class="stat-count">{{ post.tags.count }} tag{{ post.tags.count|pluralize }}</span></div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'blog:post_edit' post.slug %}" class="action-btn">
+                    <i class="bi bi-pencil-fill"></i>
+                    <span>Edit</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</article>

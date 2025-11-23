@@ -1,0 +1,19 @@
+{{ site_name|default:"MyBlog" }} — New Reply to Your Comment
+
+Hi {{ user.username }},
+
+{{ reply.author_name }} replied to your comment on the post: "{{ reply.post_title }}"
+
+---
+Your Comment:
+"{{ reply.parent_comment_excerpt|default:"[Original comment excerpt]" }}"
+---
+
+Reply Preview:
+"{{ reply.content|default:"Click the link below to see the full reply." }}"
+
+View Reply & Thread:
+{{ reply.url }}
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

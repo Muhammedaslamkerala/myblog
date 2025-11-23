@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name|default:"MyBlog" }} - Welcome!</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f9fafb;">
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 48px 20px;"> 
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                    
+                    <!-- Header with Gradient Background -->
+                    <tr>
+                        <td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 900; line-height: 1.2;">
+                                Welcome to {{ site_name|default:"MyBlog" }}!
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content Card Body -->
+                    <tr>
+                        <td style="padding: 48px; text-align: left;">
+                            
+                            <!-- Icon (Primary color emphasis - using Unicode for maximum compatibility) -->
+                            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td style="color: #667eea; font-size: 32px; line-height: 1;">
+                                        &#x1F389; <!-- Party Popper Icon -->
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="color: #1f2937; margin: 0 0 15px 0; font-size: 20px; font-weight: 700; line-height: 1.4;">
+                                Hi {{ user.username }},
+                            </p>
+                            
+                            <p style="color: #6b7280; margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; font-weight: 400;">
+                                We're thrilled to have you join our community! Get started by exploring new posts, connecting with other users, and customizing your profile.
+                            </p>
+
+                            <!-- Button Area -->
+                            <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 30px auto; width: 100%; text-align: center;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ dashboard_link }}" target="_blank"
+                                           style="display: inline-block; padding: 12px 20px; border-radius: 12px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px;
+                                                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            &nbsp;Go To My Dashboard&nbsp;
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color: #6b7280; margin: 0; font-size: 16px; line-height: 1.6; font-weight: 400;">
+                                If you have any questions, don't hesitate to reply to this email!
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding: 20px 48px 48px; border-top: 1px solid #f3f4f6;">
+                            <p style="font-size: 14px; color: #6b7280; margin: 0; font-weight: 400;">
+                                The {{ site_name|default:"MyBlog" }} Team
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{{ site_name|default:"MyBlog" }} — Important Account Update
+
+Hi {{ user.username }},
+
+This is a notification to confirm your {{ changed_field|default:"account settings" }} was successfully updated on {{ site_name|default:"MyBlog" }} at {{ timestamp }}.
+
+If you did not make this change, please secure your account immediately:
+{{ security_link }}
+
+For your security, always ensure you are logging into the official {{ site_name|default:"MyBlog" }} website.
+
+Thanks,
+The {{ site_name|default:"MyBlog" }} Team

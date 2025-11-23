@@ -1,0 +1,831 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - MyBlog{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Modern Dashboard Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --danger-color: #ef4444; /* Added for delete icon */
+    --danger-light-bg: #fef2f2; /* Added for delete icon */
+    --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+body { 
+
+    background: linear-gradient(135deg, #f9fafb 0%, white 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Hero Header with Decorative Circles */
+.dashboard-hero {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 3rem 0 6rem; /* More padding to accommodate floating cards */
+    margin-top: -70px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-hero::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    top: -250px;
+    right: -100px;
+}
+
+.dashboard-hero::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    bottom: -150px;
+    left: -50px;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding-top: 70px;
+}
+
+.welcome-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.welcome-text h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-text p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.quick-actions-hero {
+    display: flex;
+    gap: 1rem;
+}
+
+.hero-btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hero-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.hero-btn.primary {
+    background: white;
+    color: #667eea;
+    border-color: white;
+}
+
+.hero-btn.primary:hover {
+    background: #f9fafb;
+    color: #667eea;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: -4rem; /* Overlap header */
+    position: relative;
+    z-index: 3;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.primary { background: var(--primary-gradient); }
+.stat-icon.success { background: var(--success-gradient); }
+.stat-icon.warning { background: var(--warning-gradient); }
+.stat-icon.info { background: var(--info-gradient); }
+.stat-icon.danger { background: var(--danger-gradient); }
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Main Content */
+.dashboard-content {
+    padding: 3rem 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+/* Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-title i {
+    color: #667eea;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Chart Card */
+.chart-card {
+    height: 400px;
+    position: relative;
+}
+
+#performanceChart {
+    max-height: 350px;
+}
+
+/* Posts List */
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.post-item {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.post-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+}
+
+.post-thumbnail {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.post-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 2rem;
+}
+
+.post-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.post-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.post-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-title a:hover {
+    color: #667eea;
+}
+
+.post-excerpt {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-badge.public {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+.status-badge.private {
+    background-color: #e5e7eb;
+    color: #374151; /* gray/neutral */
+  }
+
+.post-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.post-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6b7280;
+}
+
+.action-btn-small:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: #f9fafb;
+}
+
+.action-btn-small.delete:hover {
+    border-color: var(--danger-color);
+    background-color: var(--danger-light-bg);
+    color: var(--danger-color);
+}
+
+/* Activity Feed */
+.activity-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.activity-content { flex: 1; }
+.activity-author { font-weight: 600; color: #1f2937; font-size: 0.95rem; }
+.activity-text { font-size: 0.85rem; color: #6b7280; margin: 0.25rem 0; }
+.activity-time { font-size: 0.75rem; color: #9ca3af; }
+
+/* Quick Actions Sidebar */
+.quick-actions-card .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #374151;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.quick-actions-card .action-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateX(5px);
+}
+
+.quick-actions-card .action-btn i { width: 24px; text-align: center; font-size: 1.25rem; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 3rem 2rem; }
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: #9ca3af;
+}
+.empty-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; }
+.empty-description { color: #6b7280; margin-bottom: 1.5rem; }
+
+/* Responsive */
+@media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .welcome-section { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .quick-actions-hero { width: 100%; }
+    .hero-btn { flex: 1; justify-content: center; }
+    .post-item { flex-direction: column; }
+    .post-thumbnail { width: 100%; height: 200px; }
+}
+@media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+
+/* START: NEWLY ADDED for Series Card */
+.series-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+.series-item:hover {
+    background-color: #f9fafb;
+}
+.series-title {
+    font-weight: 600;
+    color: #1f2937;
+}
+.series-title a {
+    text-decoration: none;
+    color: inherit;
+}
+.series-title a:hover {
+    color: var(--primary);
+}
+.series-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+/* END: NEWLY ADDED for Series Card */
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="dashboard-hero">
+    <div class="hero-content">
+        <div class="container">
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+                    <p>Here's what's happening with your blog today</p>
+                </div>
+                <div class="quick-actions-hero">
+                    <a href="{% url 'blog:post_write' %}" class="hero-btn primary">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>New Post</span>
+                    </a>
+                    <a href="{% url 'blog:for_you' %}" class="hero-btn">
+                        <i class="bi bi-heart"></i>
+                        <span>For You</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content Area -->
+<section class="dashboard-content" style="padding-top: 0;"> <!-- Remove top padding to merge with cards -->
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon primary"> <i class="bi bi-file-earmark-text"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ total_posts }}">0</div>
+                <div class="stat-label">Total Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon success"> <i class="bi bi-check-circle"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ published_posts }}">0</div>
+                <div class="stat-label">Published</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon warning"> <i class="bi bi-eye"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ total_views }}">0</div>
+                <div class="stat-label">Total Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon danger"> <i class="bi bi-heart"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ total_likes }}">0</div>
+                <div class="stat-label">Total Likes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon info"> <i class="bi bi-people"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ following_count }}">0</div>
+                <div class="stat-label">Following</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);"> <i class="bi bi-person-hearts"></i> </div>
+                </div>
+                <div class="stat-value" data-target="{{ followers_count }}">0</div>
+                <div class="stat-label">Followers</div>
+            </div>
+        </div>
+
+        <!-- Content Grid (Chart, Posts, Sidebar) -->
+        <div class="content-grid" style="margin-top: 2rem;">
+            <!-- Left Column -->
+            <div class="left-column" style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Performance Chart -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title"> <i class="bi bi-graph-up-arrow"></i> Performance Overview </h3>
+                        <select class="form-select form-select-sm" style="width: auto;" id="chartPeriod" onchange="changePeriod()">
+                            <option value="7" {% if chart_period == 7 %}selected{% endif %}>Last 7 days</option>
+                            <option value="30" {% if chart_period == 30 %}selected{% endif %}>Last 30 days</option>
+                            <option value="90" {% if chart_period == 90 %}selected{% endif %}>Last 90 days</option>
+                        </select>
+                    </div>
+                    <div class="card-body chart-card"> <canvas id="performanceChart"></canvas> </div>
+                </div>
+
+                <!-- START: CORRECTED "My Series" Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title"> <i class="bi bi-collection-fill"></i> My Series </h3>
+                        <a href="{% url 'blog:my_series_create' %}" class="btn btn-sm btn-primary"> <i class="bi bi-plus-circle"></i> New Series </a>
+                    </div>
+                    <div class="card-body">
+                        {% if user.series.all %}
+                        <div class="d-grid gap-2">
+                            {% for series in user.series.all|slice:":5" %}
+                            <div class="series-item">
+                                <div>
+                                    <div class="series-title"><a href="{% url 'blog:my_series_edit' series.slug %}">{{ series.title }}</a></div>
+                                    <div class="series-meta">{{ series.posts.count }} posts</div>
+                                </div>
+                                <a href="{% url 'blog:my_series_edit' series.slug %}" class="btn btn-sm btn-outline-secondary">Manage</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if user.series.all.count > 5 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'blog:my_series_list' %}">View all {{ user.series.all.count }} series...</a>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="empty-state" style="padding: 1rem;">
+                            <div class="empty-icon" style="width: 60px; height: 60px; font-size: 1.5rem;"> <i class="bi bi-collection"></i> </div>
+                            <h5 class="empty-title" style="font-size: 1.1rem;">Create your first series</h5>
+                            <p class="empty-description" style="font-size: 0.9rem;">Group related posts together to create a learning path for your readers.</p>
+                            <a href="{% url 'blog:my_series_create' %}" class="btn btn-sm btn-primary">Create Series</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- END: CORRECTED "My Series" Card -->
+
+                <!-- Recent Posts -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title"> <i class="bi bi-clock-history"></i> Recent Posts </h3>
+                        <a href="{% url 'blog:my_posts' %}" class="btn btn-sm btn-outline-primary"> View All </a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_posts %}
+                        <div class="posts-list">
+                            {% for post in recent_posts %}
+                            <div class="post-item">
+                                <div class="post-thumbnail">
+                                    {% if post.featured_image %}
+                                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                                    {% else %}
+                                        <div class="post-placeholder"> <i class="bi bi-file-text"></i> </div>
+                                    {% endif %}
+                                </div>
+                                <div class="post-info">
+                                    <h5 class="post-title">
+                                      <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                                    </h5>
+                                  
+                                    <p class="post-excerpt">{{ post.excerpt|truncatechars:80 }}</p>
+                                  
+                                    <div class="post-meta">
+                                      <span class="status-badge 
+                                        {% if post.status == 'public' %}
+                                          public
+                                        {% elif post.status == 'private' %}
+                                          private
+                                        {% else %}
+                                          draft
+                                        {% endif %}
+                                      ">
+                                        <i class="bi 
+                                          {% if post.status == 'public' %}
+                                            bi-check-circle
+                                          {% elif post.status == 'private' %}
+                                            bi-lock
+                                          {% else %}
+                                            bi-file-earmark
+                                          {% endif %}
+                                        "></i>
+                                        {{ post.get_status_display }}
+                                      </span>
+                                  
+                                      <small class="text-muted">{{ post.created_at|date:"M d, Y" }}</small>
+                                  
+                                      <div class="post-stats">
+                                        <span class="post-stat"><i class="bi bi-eye-fill"></i> {{ post.views_count }}</span>
+                                        <span class="post-stat"><i class="bi bi-heart-fill"></i> {{ post.likes_count }}</span>
+                                        <span class="post-stat"><i class="bi bi-chat-fill"></i> {{ post.comments.count }}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                <div class="post-actions">
+                                    <a href="{{ post.get_absolute_url }}" class="action-btn-small" title="View"> <i class="bi bi-eye"></i> </a>
+                                    <a href="{% url 'blog:post_edit' post.slug %}" class="action-btn-small" title="Edit"> <i class="bi bi-pencil"></i> </a>
+                                    <a href="{% url 'blog:post_delete' post.slug %}" class="action-btn-small delete" title="Delete"> <i class="bi bi-trash"></i> </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon"> <i class="bi bi-file-plus"></i> </div>
+                            <h5 class="empty-title">No posts yet</h5>
+                            <p class="empty-description">Start writing your first post to see it here.</p>
+                            <a href="{% url 'blog:post_write' %}" class="btn btn-primary"> <i class="bi bi-plus-circle me-2"></i>Write First Post </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column" style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Quick Actions -->
+                <div class="dashboard-card quick-actions-card">
+                    <div class="card-header"> <h3 class="card-title"> <i class="bi bi-lightning"></i> Quick Actions </h3> </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <!-- START: CORRECTED URLS -->
+                            <a href="{% url 'blog:post_write' %}" class="action-btn"> <i class="bi bi-plus-circle"></i> <span>Write New Post</span> </a>
+                            <a href="{% url 'blog:my_series_list' %}" class="action-btn"> <i class="bi bi-collection-fill"></i> <span>Manage My Series</span> </a>
+                            <!-- END: CORRECTED URLS -->
+                            <a href="{% url 'blog:my_posts' %}" class="action-btn"> <i class="bi bi-file-earmark-text"></i> <span>View Drafts ({{ draft_posts }})</span> </a>
+                            <a href="{% url 'users:profile' %}" class="action-btn"> <i class="bi bi-person"></i> <span>Edit Profile</span> </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header"> <h3 class="card-title"> <i class="bi bi-chat-dots"></i> Recent Comments </h3> </div>
+                    <div class="card-body">
+                        {% if recent_comments %}
+                        <div class="activity-list">
+                            {% for comment in recent_comments|slice:":5" %}
+                            <div class="activity-item">
+                                <div class="activity-avatar"> {{ comment.author.get_full_name.0|upper }}{{ comment.author.last_name.0|upper }} </div>
+                                <div class="activity-content">
+                                    <div class="activity-author">{{ comment.author.get_full_name|default:comment.author.username }}</div>
+                                    <p class="activity-text">{{ comment.body|truncatechars:60 }}</p>
+                                    <div class="activity-time"> <i class="bi bi-clock"></i> {{ comment.published_date|timesince }} ago </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon"> <i class="bi bi-chat-dots"></i> </div>
+                            <h5 class="empty-title">No comments yet</h5>
+                            <p class="empty-description">When readers comment on your posts, they will appear here.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Counter Animation
+function animateCounter(element) {
+    const target = parseInt(element.getAttribute('data-target'));
+    const duration = 2000;
+    // Handle cases where target might be 0 or null
+    if (isNaN(target)) {
+        element.textContent = 0;
+        return;
+    }
+    const increment = target / (duration / 16);
+    let current = 0;
+    
+    const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+            element.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = target;
+        }
+    };
+    
+    updateCounter();
+}
+
+// Initialize counters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const counters = document.querySelectorAll('.stat-value[data-target]');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 }); // Start animation when 50% visible
+    
+    counters.forEach(counter => observer.observe(counter));
+    
+    // Initialize Chart
+    initPerformanceChart();
+});
+
+function initPerformanceChart() {
+    const ctx = document.getElementById('performanceChart');
+    if (!ctx) return;
+
+    // This is the only important change: we now use the correct structure
+    const chartConfig = {{ chart_data|safe }};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartConfig.labels,
+            datasets: chartConfig.datasets  // ← This was the bug! Now fixed
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { padding: 20, font: { size: 13, weight: '600' }, usePointStyle: true, pointStyle: 'circle' } },
+                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12, borderRadius: 8, titleFont: { size: 14, weight: '600' }, bodyFont: { size: 13 }, displayColors: true, boxWidth: 8, boxHeight: 8, usePointStyle: true }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { padding: 10, font: { size: 12 }, color: '#6b7280' } },
+                x: { grid: { display: false }, ticks: { padding: 10, font: { size: 12 }, color: '#6b7280', maxRotation: 45 } }
+            },
+            interaction: { intersect: false, mode: 'index' }
+        }
+    });
+}
+
+function changePeriod() {
+    const period = document.getElementById('chartPeriod').value;
+    window.location.href = '?period=' + period;
+}
+</script>
+{% endblock %}
